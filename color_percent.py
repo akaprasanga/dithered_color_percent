@@ -9,6 +9,32 @@ seg = Segment()
 area = 0
 
 
+def quantize_color(color_dict):
+    num_colors = len(color_dict)
+    quantized_color = {}
+    key_list = []
+    value_list = []
+    np_values = np.array(value_list)
+    quantize_bin = np.array([0, 0.25, 0.5, 0.75, 1])
+    for k,v in color_dict.items():
+        key_list.append(k)
+        value_list.append(v)
+    if len(key_list) == 1:
+        quantize_color[key_list[0]] = value_list[0]
+        return quantized_color
+    if len(key_list) == 2:
+        digitized = np.digitize(np_values, quantize_bin)
+
+
+def join_images(fname, segment_number, color_replaced):
+    path = fname.split('/')
+    fname = path[len(path)-1]
+    fname ='segmented/slic' + str(segment_number) +fname
+    img = cv2.imread(fname)
+    joined = np.hstack((img, color_replaced))
+    return joined
+
+
 def get_cdn_in_segment(img):
     distribution_dict = {}
     image = Image.fromarray(img.astype('uint8'), 'RGB')
@@ -34,8 +60,10 @@ def convert_to_pillow_format(img):
 
 
 def get_all_colors_of_image(img):
-    image = convert_to_pillow_format(original)
+    image = convert_to_pillow_format(img)
+    print(image)
     colors = image.getcolors()
+    print(colors)
     colors = list(zip(*colors))[1]
     # print(colors)
 
@@ -57,6 +85,7 @@ def count_proportion(segments, image):
         mean_r = 0
         mean_g = 0
         mean_b = 0
+        print(color_dist)
         for (key, value) in color_dist.items():
             r, g, b = key
             mean_r = mean_r + r * value
@@ -71,22 +100,27 @@ def count_proportion(segments, image):
 
     final1 = np.dstack((mask_r, mask_g, mask_b))
     final2 = np.dstack((mask_b, mask_g, mask_r))
-    cv2.imwrite('rgb.jpg', final1)
-    cv2.imwrite('bgr.jpg', final2)
+    # cv2.imwrite('rgb.jpg', final1)
+    # cv2.imwrite('bgr.jpg', final2)
+    return final2
 
 
-
-
-filename = 'Wagion Lanet.png'
+filename = 'Ascenure.processed.png'
 filename = 'images/' + filename
 
 
 start = time.time()
-segmented = seg.slic_superpixel(filename, 10000)
+segment_number = 50
+segmented, boundaries = seg.slic_superpixel(filename, segment_number)
+# segmented = seg.fz_superpixel(filename, 200)
+# segmented = seg.qc_superpixel(filename,1, 20)
 original = cv2.imread(filename)
+print(original.shape)
 original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
 get_all_colors_of_image(original)
 
 area = original.shape[0]*original.shape[1]
-count_proportion(segmented, original)
+color_replaced = count_proportion(segmented, original)
+joined = join_images(filename, segment_number, color_replaced)
+cv2.imwrite(str(segment_number)+'slic.jpg', joined)
 print(time.time()-start)
