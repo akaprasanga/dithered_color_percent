@@ -19,7 +19,7 @@ class Segment:
         image = img_as_float(io.imread(filename))
         image = image[:, :, :3]
         segments_slic = slic(image, n_segments=segment_number, enforce_connectivity=False, convert2lab=True,
-                             multichannel=True, sigma=5, compactness=3)
+                             multichannel=True, sigma=3, compactness=3)
 
         boundaries = mark_boundaries(image, segments_slic)
         fname = filename.split('/')
