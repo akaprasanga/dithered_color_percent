@@ -15,7 +15,7 @@ def join_images(fname, segment_number, color_replaced):
     path = fname.split('/')
     fname = path[len(path)-1]
     dithered_name = fname.split('.')[0]
-    original_name = 'originalImages/' +dithered_name + '.png'
+    original_name = 'original/' +dithered_name + '.png'
 
     dithered_name = '6colordither/'+dithered_name+'.processed.png'
 
@@ -81,7 +81,7 @@ def count_proportion(segments, image):
         # print(segVal, color_dist)
         # print(color_dist)
         cmy_color = quantize.rgb_to_cmy(color_dist)
-        q_color = quantize.quantize_color(cmy_color)
+        q_color = quantize.quantize_into_pockets(cmy_color)
         # q_color = cmy_color
 
         mean_c = 0
@@ -133,7 +133,7 @@ def main(filename):
     joined = join_images(filename, segment_number, color_replaced)
     # joined = cv2.cvtColor(joined, cv2.COLOR_RGB2BGR)
 
-    cv2.imwrite('quant4level/'+str(segment_number)+name, joined)
+    cv2.imwrite('3level/'+str(segment_number)+name, joined)
     print(time.time()-start)
 
 f = []
