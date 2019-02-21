@@ -58,14 +58,12 @@ def convert_to_pillow_format(img):
 
 def get_all_colors_of_image(img):
     image = convert_to_pillow_format(img)
-    print(image)
     colors = image.getcolors()
-    print(colors)
     colors = list(zip(*colors))[1]
     # print(colors)
 
 
-def count_proportion(segments, image):
+def count_proportion(segments, image, color_pockets):
     orig = image
     mask_r = np.zeros(image.shape[:2], dtype="uint8")
     mask_g = np.zeros(image.shape[:2], dtype="uint8")
@@ -81,7 +79,7 @@ def count_proportion(segments, image):
         # print(segVal, color_dist)
         # print(color_dist)
         cmy_color = quantize.rgb_to_cmy(color_dist)
-        q_color = quantize.quantize_into_pockets(cmy_color)
+        q_color = quantize.quantize_into_pockets(cmy_color,pocket_number=color_pockets)
         # q_color = cmy_color
 
         mean_c = 0
@@ -106,46 +104,47 @@ def count_proportion(segments, image):
 
     final1 = np.dstack((mask_r, mask_g, mask_b))
     final2 = np.dstack((mask_b, mask_g, mask_r))
-    # cv2.imwrite('rgb.jpg', final1)
-    # cv2.imwrite('bgr.jpg', final2)
-    return final1
+
+    return final2
 
 
-def main(filename):
+def main(filename, segment_number, connectivity, compactness, sigma, color_pockets):
     # filename = 'IMG_20180612_0002_Page_1.processed.png'
     name = filename
-    filename = '6colordither/' + filename
+    # filename = '6colordither/' + filename
 
 
     start = time.time()
-    segment_number = 100
-    segmented, boundaries = seg.slic_superpixel(filename, segment_number)
+    # segment_number = 100
+    segmented, boundaries = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness)
     # segmented = seg.fz_superpixel(filename, 200)
     # segmented = seg.qc_superpixel(filename,1, 20)
     original = cv2.imread(filename)
-    print(original.shape)
     original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
-    get_all_colors_of_image(original)
 
     global area
     area = original.shape[0]*original.shape[1]
-    color_replaced = count_proportion(segmented, original)
-    joined = join_images(filename, segment_number, color_replaced)
+    color_replaced = count_proportion(segmented, original,color_pockets)
+    # joined = join_images(filename, segment_number, color_replaced)
     # joined = cv2.cvtColor(joined, cv2.COLOR_RGB2BGR)
-
-    cv2.imwrite('3level/'+str(segment_number)+name, joined)
+    name = filename.split('/')
+    name = name[len(name)-1]
+    cv2.imwrite(str(segment_number)+name, color_replaced)
     print(time.time()-start)
+    segmented_image = cv2.imread('segmented/' + str(segment_number) + name)
+    segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_BGR2RGB)
+    return color_replaced,segmented_image
 
-f = []
-for (dirpath, dirnames, filenames) in walk('6colordither'):
-    f.extend(filenames)
-    break
-
-counter = 0
-for each in f:
-    name = each
-    main(name)
-    print("processing image", counter)
-    counter += 1
+# f = []
+# for (dirpath, dirnames, filenames) in walk('6colordither'):
+#     f.extend(filenames)
+#     break
+#
+# counter = 0
+# for each in f:
+#     name = each
+#     main(name)
+#     print("processing image", counter)
+#     counter += 1
 
 # main('Ascenure.processed.png')

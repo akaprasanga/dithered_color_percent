@@ -51,7 +51,7 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox,QFileDialog, QComboBox, QDa
         QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,QGraphicsView,
         QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,QGraphicsScene,
         QVBoxLayout, QWidget, QMessageBox)
-
+import color_percent
 
 class WidgetGallery(QDialog):
     def __init__(self, parent=None):
@@ -114,7 +114,7 @@ class WidgetGallery(QDialog):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
-                                                "JPG Files (*.jpg);;PNG Files (*.png)", options=options)
+                                                "PNG Files (*.png);;JPG Files (*.jpg)", options=options)
         if files:
             self.list_of_files = files
             self.display_image(files[0])
@@ -130,6 +130,12 @@ class WidgetGallery(QDialog):
         smaller_pixmap = pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.img_label.setPixmap(smaller_pixmap)
 
+    def convert_to_QImage(self,cvImg):
+        height, width, channel = cvImg.shape
+        bytesPerLine = 3 * width
+        qImg = QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        return qImg
+
     def process_image(self):
         number_of_segments = self.segments_number.value()
         sigma_value = self.sigma.value()
@@ -144,6 +150,18 @@ class WidgetGallery(QDialog):
             QMessageBox.about(self, "Alert", "Please Choose Image File To Proceed Further !!")
         else:
             print(self.list_of_files[0], number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity)
+            try:
+                replaced_img,segmented_image = color_percent.main(self.list_of_files[0], number_of_segments,connectivity,compactness_value, sigma_value, color_pocket_number)
+                pixmap = QPixmap(self.convert_to_QImage(replaced_img))
+                smaller_pixmap = pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
+                self.final_image_label.setPixmap(smaller_pixmap)
+
+                pixmap2 = QPixmap(self.convert_to_QImage(segmented_image))
+                smaller_pixmap2 = pixmap2.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
+                self.segmented_img_label.setPixmap(smaller_pixmap2)
+
+            except:
+                QMessageBox.about(self, "Alert", "Too Many Colors in Image. Please Reduce the color in image and then process")
 
     def advanceProgressBar(self):
         curVal = self.progressBar.value()
@@ -215,68 +233,84 @@ class WidgetGallery(QDialog):
         self.topRightGroupBox.setLayout(layout)
 
     def createBottomLeftTabWidget(self):
-        self.bottomLeftTabWidget = QTabWidget()
-        self.bottomLeftTabWidget.setSizePolicy(QSizePolicy.Preferred,
-                QSizePolicy.Ignored)
+        self.bottomLeftTabWidget = QGroupBox("Segmented Image")
+        self.segmented_img_label = QLabel(self)
 
-        tab1 = QWidget()
-        tableWidget = QTableWidget(10, 10)
+        # self.bottomLeftTabWidget = QTabWidget()
+        # self.bottomLeftTabWidget.setSizePolicy(QSizePolicy.Preferred,
+        #         QSizePolicy.Ignored)
+        #
+        # tab1 = QWidget()
+        # tableWidget = QTableWidget(10, 10)
+        #
+        # tab1hbox = QHBoxLayout()
+        # tab1hbox.setContentsMargins(5, 5, 5, 5)
+        # tab1hbox.addWidget(tableWidget)
+        # tab1.setLayout(tab1hbox)
+        #
+        # tab2 = QWidget()
+        # textEdit = QTextEdit()
+        #
+        # textEdit.setPlainText("Twinkle, twinkle, little star,\n"
+        #                       "How I wonder what you are.\n"
+        #                       "Up above the world so high,\n"
+        #                       "Like a diamond in the sky.\n"
+        #                       "Twinkle, twinkle, little star,\n"
+        #                       "How I wonder what you are!\n")
+        #
+        # tab2hbox = QHBoxLayout()
+        # tab2hbox.setContentsMargins(5, 5, 5, 5)
+        # tab2hbox.addWidget(textEdit)
+        # tab2.setLayout(tab2hbox)
+        #
+        # self.bottomLeftTabWidget.addTab(tab1, "&Table")
+        # self.bottomLeftTabWidget.addTab(tab2, "Text &Edit")
 
-        tab1hbox = QHBoxLayout()
-        tab1hbox.setContentsMargins(5, 5, 5, 5)
-        tab1hbox.addWidget(tableWidget)
-        tab1.setLayout(tab1hbox)
+        layout = QVBoxLayout()
+        layout.addWidget(self.segmented_img_label)
 
-        tab2 = QWidget()
-        textEdit = QTextEdit()
-
-        textEdit.setPlainText("Twinkle, twinkle, little star,\n"
-                              "How I wonder what you are.\n" 
-                              "Up above the world so high,\n"
-                              "Like a diamond in the sky.\n"
-                              "Twinkle, twinkle, little star,\n" 
-                              "How I wonder what you are!\n")
-
-        tab2hbox = QHBoxLayout()
-        tab2hbox.setContentsMargins(5, 5, 5, 5)
-        tab2hbox.addWidget(textEdit)
-        tab2.setLayout(tab2hbox)
-
-        self.bottomLeftTabWidget.addTab(tab1, "&Table")
-        self.bottomLeftTabWidget.addTab(tab2, "Text &Edit")
+        layout.addStretch(1)
+        self.bottomLeftTabWidget.setLayout(layout)
 
     def createBottomRightGroupBox(self):
-        self.bottomRightGroupBox = QGroupBox("Group 3")
-        self.bottomRightGroupBox.setCheckable(True)
-        self.bottomRightGroupBox.setChecked(True)
+        self.bottomRightGroupBox = QGroupBox("Final Result")
+        self.final_image_label = QLabel(self)
+        # self.bottomRightGroupBox.setCheckable(True)
+        # self.bottomRightGroupBox.setChecked(True)
+        #
+        # lineEdit = QLineEdit('s3cRe7')
+        # lineEdit.setEchoMode(QLineEdit.Password)
+        #
+        # spinBox = QSpinBox(self.bottomRightGroupBox)
+        # spinBox.setValue(50)
+        #
+        # dateTimeEdit = QDateTimeEdit(self.bottomRightGroupBox)
+        # dateTimeEdit.setDateTime(QDateTime.currentDateTime())
+        #
+        # slider = QSlider(Qt.Horizontal, self.bottomRightGroupBox)
+        # slider.setValue(40)
+        #
+        # scrollBar = QScrollBar(Qt.Horizontal, self.bottomRightGroupBox)
+        # scrollBar.setValue(10)
+        #
+        # dial = QDial(self.bottomRightGroupBox)
+        # dial.setValue(30)
+        # dial.setNotchesVisible(True)
+        #
+        # layout = QGridLayout()
+        # layout.addWidget(lineEdit, 0, 0, 1, 2)
+        # layout.addWidget(spinBox, 1, 0, 1, 2)
+        # layout.addWidget(dateTimeEdit, 2, 0, 1, 2)
+        # layout.addWidget(slider, 3, 0)
+        # layout.addWidget(scrollBar, 4, 0)
+        # layout.addWidget(dial, 3, 1, 2, 1)
+        # layout.setRowStretch(5, 1)
+        # self.bottomRightGroupBox.setLayout(layout)
 
-        lineEdit = QLineEdit('s3cRe7')
-        lineEdit.setEchoMode(QLineEdit.Password)
+        layout = QVBoxLayout()
+        layout.addWidget(self.final_image_label)
 
-        spinBox = QSpinBox(self.bottomRightGroupBox)
-        spinBox.setValue(50)
-
-        dateTimeEdit = QDateTimeEdit(self.bottomRightGroupBox)
-        dateTimeEdit.setDateTime(QDateTime.currentDateTime())
-
-        slider = QSlider(Qt.Horizontal, self.bottomRightGroupBox)
-        slider.setValue(40)
-
-        scrollBar = QScrollBar(Qt.Horizontal, self.bottomRightGroupBox)
-        scrollBar.setValue(10)
-
-        dial = QDial(self.bottomRightGroupBox)
-        dial.setValue(30)
-        dial.setNotchesVisible(True)
-
-        layout = QGridLayout()
-        layout.addWidget(lineEdit, 0, 0, 1, 2)
-        layout.addWidget(spinBox, 1, 0, 1, 2)
-        layout.addWidget(dateTimeEdit, 2, 0, 1, 2)
-        layout.addWidget(slider, 3, 0)
-        layout.addWidget(scrollBar, 4, 0)
-        layout.addWidget(dial, 3, 1, 2, 1)
-        layout.setRowStretch(5, 1)
+        layout.addStretch(1)
         self.bottomRightGroupBox.setLayout(layout)
 
     def createProgressBar(self):

@@ -10,22 +10,22 @@ class Segment:
     def __init__(self):
         pass
 
-    def slic_superpixel(self, filename, segment_number):
+    def slic_superpixel(self, filename, segment_number, connectivity, s, k):
         """
         :param filename: image to segment
         :param segment_number: nomuber of regions based on LAB color Space
         :return: segmented images with defined boundaries
         """
+
         image = img_as_float(io.imread(filename))
         image = image[:, :, :3]
-        segments_slic = slic(image, n_segments=segment_number, enforce_connectivity=False, convert2lab=True,
-                             multichannel=True, sigma=3, compactness=3)
+        segments_slic = slic(image, n_segments=segment_number, enforce_connectivity=connectivity, convert2lab=True,
+                             multichannel=True, sigma=s, compactness=k)
 
         boundaries = mark_boundaries(image, segments_slic)
         fname = filename.split('/')
         fname = fname[len(fname)-1]
-        plt.imsave('segmented/slic' + str(segment_number) +fname, boundaries)
-
+        plt.imsave('segmented/' + str(segment_number) + fname, boundaries)
         return segments_slic, boundaries
 
     def fz_superpixel(self, filename, f_scale):
