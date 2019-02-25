@@ -42,9 +42,7 @@
 #############################################################################
 
 from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtCore import QDateTime, Qt, QTimer
-from PyQt5 import QtGui
+from PyQt5.QtCore import QDateTime, Qt, QTimer, QThread
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QApplication, QCheckBox,QFileDialog, QComboBox, QDateTimeEdit,
         QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
@@ -52,6 +50,12 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox,QFileDialog, QComboBox, QDa
         QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,QGraphicsScene,
         QVBoxLayout, QWidget, QMessageBox)
 import color_percent
+import cv2
+import os
+
+class Thread(QThread):
+    def run(self):
+        QThread.sleep(2)
 
 class WidgetGallery(QDialog):
     def __init__(self, parent=None):
@@ -74,7 +78,7 @@ class WidgetGallery(QDialog):
         self.createTopRightGroupBox()
         self.createBottomLeftTabWidget()
         self.createBottomRightGroupBox()
-        self.createProgressBar()
+        # self.createProgressBar()
 
         styleComboBox.activated[str].connect(self.changeStyle)
         self.useStylePaletteCheckBox.toggled.connect(self.changePalette)
@@ -84,11 +88,11 @@ class WidgetGallery(QDialog):
         disableWidgetsCheckBox.toggled.connect(self.bottomRightGroupBox.setDisabled)
 
         topLayout = QHBoxLayout()
-        topLayout.addWidget(styleLabel)
-        topLayout.addWidget(styleComboBox)
-        topLayout.addStretch(1)
-        topLayout.addWidget(self.useStylePaletteCheckBox)
-        topLayout.addWidget(disableWidgetsCheckBox)
+        # topLayout.addWidget(styleLabel)
+        # topLayout.addWidget(styleComboBox)
+        # topLayout.addStretch(1)
+        # topLayout.addWidget(self.useStylePaletteCheckBox)
+        # topLayout.addWidget(disableWidgetsCheckBox)
 
         mainLayout = QGridLayout()
         mainLayout.addLayout(topLayout, 0, 0, 1, 2)
@@ -96,7 +100,7 @@ class WidgetGallery(QDialog):
         mainLayout.addWidget(self.topRightGroupBox, 1, 1)
         mainLayout.addWidget(self.bottomLeftTabWidget, 2, 0)
         mainLayout.addWidget(self.bottomRightGroupBox, 2, 1)
-        mainLayout.addWidget(self.progressBar, 3, 0, 1, 2)
+        # mainLayout.addWidget(self.progressBar, 3, 0, 1, 2)
         mainLayout.setRowStretch(1, 1)
         mainLayout.setRowStretch(2, 1)
         mainLayout.setColumnStretch(0, 1)
@@ -114,7 +118,7 @@ class WidgetGallery(QDialog):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
-                                                "PNG Files (*.png);;JPG Files (*.jpg)", options=options)
+                                                "All Files (*.*);;PNG Files (*.png);;JPG Files (*.jpg)", options=options)
         if files:
             self.list_of_files = files
             self.display_image(files[0])
@@ -124,10 +128,12 @@ class WidgetGallery(QDialog):
             QApplication.setPalette(QApplication.style().standardPalette())
         else:
             QApplication.setPalette(self.originalPalette)
+    def disable(self):
+        self.processPushButton.setEnabled(False)
 
     def display_image(self, img_path):
         pixmap = QPixmap(img_path)
-        smaller_pixmap = pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
+        smaller_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.img_label.setPixmap(smaller_pixmap)
 
     def convert_to_QImage(self,cvImg):
@@ -136,32 +142,70 @@ class WidgetGallery(QDialog):
         qImg = QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_RGB888)
         return qImg
 
-    def process_image(self):
-        number_of_segments = self.segments_number.value()
-        sigma_value = self.sigma.value()
-        compactness_value = self.compactness.value()
-        color_pocket_number = self.quant_levels.value()
-        if self.checkBox.isChecked():
-            connectivity = True
+    def superpixels(self, img_path):
+        try:
+            number_of_segments = self.segments_number.value()
+            sigma_value = self.sigma.value()
+            compactness_value = self.compactness.value()
+            color_pocket_number = self.quant_levels.value()
+            if self.checkBox.isChecked():
+                connectivity = True
+            else:
+                connectivity = False
+            replaced_img, segmented_image, time_elapsed = color_percent.main(img_path, number_of_segments, connectivity,
+                                                               compactness_value, sigma_value, color_pocket_number)
+            display_segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_BGR2RGB)
+            display_replaced_image = cv2.cvtColor(replaced_img, cv2.COLOR_BGR2RGB)
+
+            pixmap = QPixmap(self.convert_to_QImage(display_replaced_image))
+            smaller_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
+            self.final_image_label.setPixmap(smaller_pixmap)
+
+            pixmap2 = QPixmap(self.convert_to_QImage(display_segmented_image))
+            smaller_pixmap2 = pixmap2.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
+            self.segmented_img_label.setPixmap(smaller_pixmap2)
+            info = "Time Taken to Process Image = " + str(time_elapsed)
+            self.time.setText(info)
+
+        except:
+            QMessageBox.about(self, "Alert",
+                              "This error may be due to large number of Colors in Input image. Try Reducing color by Dithering.")
+
+    def enable_dither_color(self):
+        if self.ditherRadioButton.isChecked():
+            self.ditherColor.setDisabled(False)
         else:
-            connectivity = False
+            self.ditherColor.setEnabled(False)
+
+    def process_image(self):
+
 
         if len(self.list_of_files) < 1:
             QMessageBox.about(self, "Alert", "Please Choose Image File To Proceed Further !!")
+
         else:
-            print(self.list_of_files[0], number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity)
-            try:
-                replaced_img,segmented_image = color_percent.main(self.list_of_files[0], number_of_segments,connectivity,compactness_value, sigma_value, color_pocket_number)
-                pixmap = QPixmap(self.convert_to_QImage(replaced_img))
-                smaller_pixmap = pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
-                self.final_image_label.setPixmap(smaller_pixmap)
+            # print('Processing')
+            # print(self.list_of_files[0], number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity)
 
-                pixmap2 = QPixmap(self.convert_to_QImage(segmented_image))
-                smaller_pixmap2 = pixmap2.scaled(300, 300, Qt.KeepAspectRatio, Qt.FastTransformation)
-                self.segmented_img_label.setPixmap(smaller_pixmap2)
+            if self.ditherRadioButton.isChecked():
+                # print("dithering")
+                color_n = self.ditherColor.value()
+                p = self.list_of_files[0]
+                f_name, file_extension = os.path.splitext(p)
+                if file_extension == '.jpg' or file_extension == '.jpeg' or file_extension == '.JPG':
+                    temp = cv2.imread(p)
+                    p = f_name + '.png'
+                    cv2.imwrite(p, temp)
 
-            except:
-                QMessageBox.about(self, "Alert", "Too Many Colors in Image. Please Reduce the color in image and then process")
+                path = color_percent.dither(p, color_n)
+                print(path)
+                pixmap = QPixmap(path)
+                dithersmaller_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
+                self.img_label.setPixmap(dithersmaller_pixmap)
+                self.superpixels(path)
+            else:
+
+                self.superpixels(self.list_of_files[0])
 
     def advanceProgressBar(self):
         curVal = self.progressBar.value()
@@ -173,6 +217,14 @@ class WidgetGallery(QDialog):
 
         defaultPushButton = QPushButton("Choose Image")
         defaultPushButton.clicked.connect(self.open)
+
+        self.ditherRadioButton = QRadioButton("Dither and then Process")
+        self.ditherRadioButton.clicked.connect(self.enable_dither_color)
+        self.ditherColor = QSpinBox()
+        self.ditherColor.setMaximum(15)
+        self.ditherColor.setMinimum(2)
+        self.ditherColor.setValue(4)
+        self.ditherColor.setEnabled(False)
 
         self.checkBox = QCheckBox("Connectivity Between Segments")
         self.checkBox.setEnabled(True)
@@ -193,17 +245,26 @@ class WidgetGallery(QDialog):
         self.quant_levels.setMinimum(1)
         self.quant_levels.setValue(4)
 
+        dither_color_label = QLabel("Number of Colors to be Used in Dithering")
         segment_label = QLabel("Number of Segments")
         compactness_label = QLabel("Compactness: More the Value, Segments will be More Square")
         sigma_label = QLabel("Sigma: Size of Gussian Filter Kernel")
         quant_label = QLabel("Color Combination: Define Number of Pockets of Color to be Used")
+        self.time = QLabel()
 
-        processPushButton = QPushButton("Process Image")
-        processPushButton.clicked.connect(self.process_image)
+        self.processPushButton = QPushButton("Process Image")
+        # self.processPushButton.clicked.connect(self.processPushButton.setDisabled)
+        # self.processPushButton.clicked.connect(self.disable)
+        self.processPushButton.clicked.connect(self.process_image)
 
         layout = QVBoxLayout()
 
+
         layout.addWidget(defaultPushButton)
+        layout.addWidget(self.ditherRadioButton)
+        layout.addWidget(dither_color_label)
+        layout.addWidget(self.ditherColor)
+
         layout.addWidget(self.checkBox)
         layout.addWidget(segment_label)
         layout.addWidget(self.segments_number)
@@ -214,7 +275,9 @@ class WidgetGallery(QDialog):
         layout.addWidget(quant_label)
         layout.addWidget(self.quant_levels)
 
-        layout.addWidget(processPushButton)
+        layout.addWidget(self.processPushButton)
+        layout.addWidget(self.time)
+
 
         layout.addStretch(1)
         self.topLeftGroupBox.setLayout(layout)    
@@ -318,9 +381,9 @@ class WidgetGallery(QDialog):
         self.progressBar.setRange(0, 10000)
         self.progressBar.setValue(0)
 
-        timer = QTimer(self)
-        timer.timeout.connect(self.advanceProgressBar)
-        timer.start(1000)
+        # timer = QTimer(self)
+        # timer.timeout.connect(self.advanceProgressBar)
+        # timer.start(1000)
 
 if __name__ == '__main__':
 

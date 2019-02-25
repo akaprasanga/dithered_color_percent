@@ -1,9 +1,8 @@
-import numpy as np
-import operator
-from collections import OrderedDict
-from operator import itemgetter
-from collections import Counter
 
+from collections import Counter
+from PIL import Image
+import hitherdither
+import cv2
 
 def quantize_into_pockets(color_dict, pocket_number=3):
     keys_list = []
@@ -48,11 +47,26 @@ def rgb_to_cmy(color_dict):
 
     return cmy_dict
 
+def get_colors(img):
+    c = img.getcolors()
+    print(c)
 
 def cmy_to_rgb(val):
     val = 1 - val
     val = int(val * 255)
     return val
+
+
+def dither(img):
+    palette = hitherdither.palette.Palette.create_by_median_cut(img, n=4)
+    # palette = hitherdither.palette.Palette(
+    #     [0x080000, 0x201A0B, 0x432817, 0x492910,
+    #      0x234309, 0x5D4F1E, 0x9C6B20, 0xA9220F,
+    #      0x2B347C, 0x2B7409, 0xD0CA40, 0xE8A077,
+    #      0x6A94AB, 0xD5C4B3, 0xFCE76E, 0xFCFAE2])
+    img_dithered = hitherdither.ordered.bayer.bayer_dithering(
+        img, palette, 10, order=8)
+    return img_dithered
 
 
 l1 = {(186, 175, 181): 0.012888992104040873, (135, 130, 156): 0.008476544356711566, (78, 78, 118): 0.023107292150487693, (28, 44, 103): 0.9555271713887599}
@@ -64,3 +78,9 @@ l6 = {(186, 175, 181): 0.2735160300497302, (135, 130, 156): 0.5671357528303883, 
 
 #
 # quantize_into_pockets(l6)
+# img = Image.open('6colordither/IMG_20180612_0002_Page_2.processed.png').convert('RGB')
+# img = Image.open('original/floral.png').convert('RGB')
+# dit = dither(img)
+# dit.save('dithered.png')
+# print(img)
+# get_colors(img)

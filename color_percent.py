@@ -1,42 +1,46 @@
 import cv2
 import numpy as np
 from segmentation import Segment
-import matplotlib.pyplot as plt
 import time
 from PIL import Image
 import quantize
-from os import walk
+import os
+import hitherdither
+import PIL
+
 
 seg = Segment()
 area = 0
 
 
-def join_images(fname, segment_number, color_replaced):
-    path = fname.split('/')
-    fname = path[len(path)-1]
-    dithered_name = fname.split('.')[0]
-    original_name = 'original/' +dithered_name + '.png'
+def dither(filename, number_of_color):
+    img = Image.open(filename).convert('RGB')
+    palette = hitherdither.palette.Palette.create_by_median_cut(img, n=number_of_color)
+    img_dithered = hitherdither.ordered.bayer.bayer_dithering(
+        img, palette, 10, order=8)
+    name = filename.split('/')
+    name = name[len(name) - 1]
 
-    dithered_name = '6colordither/'+dithered_name+'.processed.png'
+    if not os.path.exists('dithered'):
+        os.makedirs('dithered')
+    os_path = os.path.dirname(os.path.abspath(__file__))
+    os_path =os_path.replace(os.sep, '/')
+    path = os_path + '/dithered/' + name
+    print(path)
+    f_name, file_extension = os.path.splitext(path)
+    print(f_name,'\n', file_extension)
 
-    fname ='segmented/slic' + str(segment_number) +fname
-    segmented_img = cv2.imread(fname)
-    dithered_img = cv2.imread(dithered_name)
-    original_img = cv2.imread(original_name)
-    print(original_name, dithered_name)
-    print(original_img.shape, dithered_img.shape, color_replaced.shape)
-    final = np.hstack((original_img, dithered_img, color_replaced))
-    # joined = np.hstack((segmented_img, color_replaced))
-    # final = np.vstack((joined1, joined))
-    return final
+    img_dithered.save(path)
+    return path
 
 
 def get_cdn_in_segment(img):
     distribution_dict = {}
     image = Image.fromarray(img.astype('uint8'), 'RGB')
     colors = image.getcolors()
-    # print(colors)
+
     black_pixels_number, rgb_value = colors[len(colors)-1]
+    # print(colors)
     segment_area = area - black_pixels_number
 
     for i in range (0, len(colors)-1):
@@ -105,18 +109,13 @@ def count_proportion(segments, image, color_pockets):
     final1 = np.dstack((mask_r, mask_g, mask_b))
     final2 = np.dstack((mask_b, mask_g, mask_r))
 
-    return final2
+    return final1
 
 
 def main(filename, segment_number, connectivity, compactness, sigma, color_pockets):
-    # filename = 'IMG_20180612_0002_Page_1.processed.png'
-    name = filename
-    # filename = '6colordither/' + filename
-
 
     start = time.time()
-    # segment_number = 100
-    segmented, boundaries = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness)
+    segmented, boundaries = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets)
     # segmented = seg.fz_superpixel(filename, 200)
     # segmented = seg.qc_superpixel(filename,1, 20)
     original = cv2.imread(filename)
@@ -125,15 +124,14 @@ def main(filename, segment_number, connectivity, compactness, sigma, color_pocke
     global area
     area = original.shape[0]*original.shape[1]
     color_replaced = count_proportion(segmented, original,color_pockets)
-    # joined = join_images(filename, segment_number, color_replaced)
-    # joined = cv2.cvtColor(joined, cv2.COLOR_RGB2BGR)
     name = filename.split('/')
     name = name[len(name)-1]
-    cv2.imwrite(str(segment_number)+name, color_replaced)
-    print(time.time()-start)
-    segmented_image = cv2.imread('segmented/' + str(segment_number) + name)
-    segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_BGR2RGB)
-    return color_replaced,segmented_image
+    if not os.path.exists('output'):
+        os.makedirs('output')
+    cv2.imwrite('output/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, color_replaced)
+    print("Time Elapsed = ",time.time()-start)
+    segmented_image = cv2.imread('segmented/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets) + name)
+    return color_replaced,segmented_image, time.time()-start
 
 # f = []
 # for (dirpath, dirnames, filenames) in walk('6colordither'):
@@ -147,4 +145,7 @@ def main(filename, segment_number, connectivity, compactness, sigma, color_pocke
 #     print("processing image", counter)
 #     counter += 1
 
-# main('Ascenure.processed.png')
+# a,b = main('4colordither/Ascenure.processed.png',100,False,3,3,3)
+# print(a,b)
+# path = dither('C:/Users/prasa/Downloads/Bishal/dithered_color_percent/images/Siam-Red-Pride.jpg',4)
+# print(path)
