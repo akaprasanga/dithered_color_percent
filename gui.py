@@ -40,15 +40,16 @@
 ## $QT_END_LICENSE$
 ##
 #############################################################################
-
+import PyQt5
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QDateTime, Qt, QTimer, QThread
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import (QApplication, QCheckBox,QFileDialog, QComboBox, QDateTimeEdit,
+from PyQt5.QtWidgets import (QApplication, QCheckBox,QFileDialog, QComboBox, QDateTimeEdit,QListWidget,
         QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
         QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,QGraphicsView,
         QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,QGraphicsScene,
         QVBoxLayout, QWidget, QMessageBox)
+from PyQt5.QtWidgets import *
 import color_percent
 import cv2
 import os
@@ -74,6 +75,7 @@ class WidgetGallery(QDialog):
 
         disableWidgetsCheckBox = QCheckBox("&Disable widgets")
 
+        self.createImageShower()
         self.createTopLeftGroupBox()
         self.createTopRightGroupBox()
         self.createBottomLeftTabWidget()
@@ -96,15 +98,16 @@ class WidgetGallery(QDialog):
 
         mainLayout = QGridLayout()
         mainLayout.addLayout(topLayout, 0, 0, 1, 2)
-        mainLayout.addWidget(self.topLeftGroupBox, 1, 0)
-        mainLayout.addWidget(self.topRightGroupBox, 1, 1)
-        mainLayout.addWidget(self.bottomLeftTabWidget, 2, 0)
-        mainLayout.addWidget(self.bottomRightGroupBox, 2, 1)
+        mainLayout.addWidget(self.ImageShower,1,1)
+        mainLayout.addWidget(self.topLeftGroupBox, 1, 2)
+        mainLayout.addWidget(self.topRightGroupBox, 1, 3)
+        mainLayout.addWidget(self.bottomLeftTabWidget, 1, 4)
+        mainLayout.addWidget(self.bottomRightGroupBox, 1, 5)
         # mainLayout.addWidget(self.progressBar, 3, 0, 1, 2)
-        mainLayout.setRowStretch(1, 1)
-        mainLayout.setRowStretch(2, 1)
-        mainLayout.setColumnStretch(0, 1)
-        mainLayout.setColumnStretch(1, 1)
+        # mainLayout.setRowStretch(1, 1)
+        # mainLayout.setRowStretch(2, 1)
+        # mainLayout.setColumnStretch(0, 1)
+        # mainLayout.setColumnStretch(1, 1)
         self.setLayout(mainLayout)
         self.list_of_files = []
         self.setWindowTitle("Dithering")
@@ -114,6 +117,15 @@ class WidgetGallery(QDialog):
         QApplication.setStyle(QStyleFactory.create(styleName))
         self.changePalette()
 
+    def itemClicked(self,item):
+        print(item.text())
+        location = int(item.text())
+        print(location)
+        new_img_path  = self.list_of_files[location]
+        print(new_img_path)
+        # print(self.list_of_files[loacation])
+        self.display_image(new_img_path)
+
     def open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -122,6 +134,10 @@ class WidgetGallery(QDialog):
         if files:
             self.list_of_files = files
             self.display_image(files[0])
+            for i,each in enumerate(files):
+                itm = QListWidgetItem(str(i))
+                itm.setIcon(QIcon(each))
+                self.ImageShowerList.addItem(itm)
 
     def changePalette(self):
         if (self.useStylePaletteCheckBox.isChecked()):
@@ -154,16 +170,16 @@ class WidgetGallery(QDialog):
                 connectivity = False
             replaced_img, segmented_image, time_elapsed = color_percent.main(img_path, number_of_segments, connectivity,
                                                                compactness_value, sigma_value, color_pocket_number)
-            display_segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_BGR2RGB)
+            # display_segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_BGR2RGB)
             display_replaced_image = cv2.cvtColor(replaced_img, cv2.COLOR_BGR2RGB)
 
             pixmap = QPixmap(self.convert_to_QImage(display_replaced_image))
             smaller_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
             self.final_image_label.setPixmap(smaller_pixmap)
 
-            pixmap2 = QPixmap(self.convert_to_QImage(display_segmented_image))
-            smaller_pixmap2 = pixmap2.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
-            self.segmented_img_label.setPixmap(smaller_pixmap2)
+            # pixmap2 = QPixmap(self.convert_to_QImage(display_segmented_image))
+            # smaller_pixmap2 = pixmap2.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
+            # self.segmented_img_label.setPixmap(smaller_pixmap2)
             info = "Time Taken to Process Image = " + str(time_elapsed)
             self.time.setText(info)
 
@@ -178,7 +194,6 @@ class WidgetGallery(QDialog):
             self.ditherColor.setEnabled(False)
 
     def process_image(self):
-
 
         if len(self.list_of_files) < 1:
             QMessageBox.about(self, "Alert", "Please Choose Image File To Proceed Further !!")
@@ -201,7 +216,7 @@ class WidgetGallery(QDialog):
                 print(path)
                 pixmap = QPixmap(path)
                 dithersmaller_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
-                self.img_label.setPixmap(dithersmaller_pixmap)
+                self.segmented_img_label.setPixmap(dithersmaller_pixmap)
                 self.superpixels(path)
             else:
 
@@ -212,10 +227,22 @@ class WidgetGallery(QDialog):
         maxVal = self.progressBar.maximum()
         self.progressBar.setValue(curVal + (maxVal - curVal) / 100)
 
+    def createImageShower(self):
+        self.ImageShower = QGroupBox("Loaded Images")
+        self.ImageShowerList = QListWidget()
+        self.ImageShowerList.itemClicked.connect(self.itemClicked)
+
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.ImageShowerList)
+        #
+        # layout.addStretch(1)
+        self.ImageShower.setLayout(layout)
+
     def createTopLeftGroupBox(self):
         self.topLeftGroupBox = QGroupBox("Parameters")
 
-        defaultPushButton = QPushButton("Choose Image")
+        defaultPushButton = QPushButton("Choose Images")
         defaultPushButton.clicked.connect(self.open)
 
         self.ditherRadioButton = QRadioButton("Dither and then Process")
@@ -279,15 +306,13 @@ class WidgetGallery(QDialog):
         layout.addWidget(self.time)
 
 
-        layout.addStretch(1)
-        self.topLeftGroupBox.setLayout(layout)    
+        # layout.addStretch(0)
+        self.topLeftGroupBox.setLayout(layout)
 
     def createTopRightGroupBox(self):
         self.topRightGroupBox = QGroupBox("Image To Process")
 
-
         self.img_label = QLabel(self)
-
 
         layout = QVBoxLayout()
         layout.addWidget(self.img_label)
@@ -296,38 +321,8 @@ class WidgetGallery(QDialog):
         self.topRightGroupBox.setLayout(layout)
 
     def createBottomLeftTabWidget(self):
-        self.bottomLeftTabWidget = QGroupBox("Segmented Image")
+        self.bottomLeftTabWidget = QGroupBox("Dithered Image")
         self.segmented_img_label = QLabel(self)
-
-        # self.bottomLeftTabWidget = QTabWidget()
-        # self.bottomLeftTabWidget.setSizePolicy(QSizePolicy.Preferred,
-        #         QSizePolicy.Ignored)
-        #
-        # tab1 = QWidget()
-        # tableWidget = QTableWidget(10, 10)
-        #
-        # tab1hbox = QHBoxLayout()
-        # tab1hbox.setContentsMargins(5, 5, 5, 5)
-        # tab1hbox.addWidget(tableWidget)
-        # tab1.setLayout(tab1hbox)
-        #
-        # tab2 = QWidget()
-        # textEdit = QTextEdit()
-        #
-        # textEdit.setPlainText("Twinkle, twinkle, little star,\n"
-        #                       "How I wonder what you are.\n"
-        #                       "Up above the world so high,\n"
-        #                       "Like a diamond in the sky.\n"
-        #                       "Twinkle, twinkle, little star,\n"
-        #                       "How I wonder what you are!\n")
-        #
-        # tab2hbox = QHBoxLayout()
-        # tab2hbox.setContentsMargins(5, 5, 5, 5)
-        # tab2hbox.addWidget(textEdit)
-        # tab2.setLayout(tab2hbox)
-        #
-        # self.bottomLeftTabWidget.addTab(tab1, "&Table")
-        # self.bottomLeftTabWidget.addTab(tab2, "Text &Edit")
 
         layout = QVBoxLayout()
         layout.addWidget(self.segmented_img_label)
@@ -338,37 +333,7 @@ class WidgetGallery(QDialog):
     def createBottomRightGroupBox(self):
         self.bottomRightGroupBox = QGroupBox("Final Result")
         self.final_image_label = QLabel(self)
-        # self.bottomRightGroupBox.setCheckable(True)
-        # self.bottomRightGroupBox.setChecked(True)
-        #
-        # lineEdit = QLineEdit('s3cRe7')
-        # lineEdit.setEchoMode(QLineEdit.Password)
-        #
-        # spinBox = QSpinBox(self.bottomRightGroupBox)
-        # spinBox.setValue(50)
-        #
-        # dateTimeEdit = QDateTimeEdit(self.bottomRightGroupBox)
-        # dateTimeEdit.setDateTime(QDateTime.currentDateTime())
-        #
-        # slider = QSlider(Qt.Horizontal, self.bottomRightGroupBox)
-        # slider.setValue(40)
-        #
-        # scrollBar = QScrollBar(Qt.Horizontal, self.bottomRightGroupBox)
-        # scrollBar.setValue(10)
-        #
-        # dial = QDial(self.bottomRightGroupBox)
-        # dial.setValue(30)
-        # dial.setNotchesVisible(True)
-        #
-        # layout = QGridLayout()
-        # layout.addWidget(lineEdit, 0, 0, 1, 2)
-        # layout.addWidget(spinBox, 1, 0, 1, 2)
-        # layout.addWidget(dateTimeEdit, 2, 0, 1, 2)
-        # layout.addWidget(slider, 3, 0)
-        # layout.addWidget(scrollBar, 4, 0)
-        # layout.addWidget(dial, 3, 1, 2, 1)
-        # layout.setRowStretch(5, 1)
-        # self.bottomRightGroupBox.setLayout(layout)
+
 
         layout = QVBoxLayout()
         layout.addWidget(self.final_image_label)
@@ -381,9 +346,7 @@ class WidgetGallery(QDialog):
         self.progressBar.setRange(0, 10000)
         self.progressBar.setValue(0)
 
-        # timer = QTimer(self)
-        # timer.timeout.connect(self.advanceProgressBar)
-        # timer.start(1000)
+
 
 if __name__ == '__main__':
 
