@@ -20,15 +20,15 @@ def dither(filename, number_of_color):
         img, palette, 10, order=8)
     name = filename.split('/')
     name = name[len(name) - 1]
+    name = 'c-'+str(number_of_color)+name
 
-    if not os.path.exists('dithered'):
-        os.makedirs('dithered')
+    if not os.path.exists('A_DITHERED'):
+        os.makedirs('A_DITHERED')
     os_path = os.path.dirname(os.path.abspath(__file__))
     os_path =os_path.replace(os.sep, '/')
-    path = os_path + '/dithered/' + name
-    print(path)
-    f_name, file_extension = os.path.splitext(path)
-    print(f_name,'\n', file_extension)
+    path = os_path + '/A_DITHERED/' + name
+    # print(path)
+    # print(f_name,'\n', file_extension)
 
     img_dithered.save(path)
     return path
@@ -119,6 +119,7 @@ def main(filename, segment_number, connectivity, compactness, sigma, color_pocke
     # segmented = seg.fz_superpixel(filename, 200)
     # segmented = seg.qc_superpixel(filename,1, 20)
     original = cv2.imread(filename)
+    original_copy = original
     original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
 
     global area
@@ -126,11 +127,21 @@ def main(filename, segment_number, connectivity, compactness, sigma, color_pocke
     color_replaced = count_proportion(segmented, original,color_pockets)
     name = filename.split('/')
     name = name[len(name)-1]
-    if not os.path.exists('output'):
-        os.makedirs('output')
-    cv2.imwrite('output/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, color_replaced)
+    if not os.path.exists('A_OUTPUT'):
+        os.makedirs('A_OUTPUT')
+    cv2.imwrite('A_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, color_replaced)
     print("Time Elapsed = ",time.time()-start)
-    segmented_image = cv2.imread('segmented/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets) + name)
+    segmented_image = cv2.imread('A_SEGMENTED/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets) + name)
+    dithered_img_name = 'A_DITHERED/' + name
+    dithered_img = cv2.imread(dithered_img_name)
+
+    try:
+        joined_img = np.hstack((original_copy,dithered_img,color_replaced))
+    except:
+        joined_img = np.hstack((original_copy,segmented_image,color_replaced))
+    if not os.path.exists('A_STICHED_OUTPUT'):
+        os.makedirs('A_STICHED_OUTPUT')
+    cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name,joined_img)
     return color_replaced,segmented_image, time.time()-start
 
 # f = []
@@ -145,7 +156,7 @@ def main(filename, segment_number, connectivity, compactness, sigma, color_pocke
 #     print("processing image", counter)
 #     counter += 1
 
-# a,b = main('4colordither/Ascenure.processed.png',100,False,3,3,3)
+# a,b,c = main('E:/Work/dithered_color_percent/images/Ascenure.processed.png',100,False,3,3,3)
 # print(a,b)
 # path = dither('C:/Users/prasa/Downloads/Bishal/dithered_color_percent/images/Siam-Red-Pride.jpg',4)
 # print(path)

@@ -29,9 +29,9 @@ class Segment:
         boundaries = mark_boundaries(image, segments_slic)
         fname = filename.split('/')
         fname = fname[len(fname)-1]
-        if not os.path.exists('segmented'):
-            os.makedirs('segmented')
-        plt.imsave('segmented/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries)
+        if not os.path.exists('A_SEGMENTED'):
+            os.makedirs('A_SEGMENTED')
+        plt.imsave('A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries)
         return segments_slic, boundaries
 
     def fz_superpixel(self, filename, f_scale):
@@ -86,8 +86,8 @@ class Segment:
         path_string = ''
         for each in dithered_img_path:
             path_string = each+path_string
-        path_string = path_string + 'dithered/' + name
-        if not os.path.exists('dithered'):
-            os.makedirs('dithered')
+        path_string = path_string + 'A_DITHERED/' + name
+        if not os.path.exists('A_DITHERED'):
+            os.makedirs('A_DITHERED')
         img_dithered.save(path_string)
         return path_string

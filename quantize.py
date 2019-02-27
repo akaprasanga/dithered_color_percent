@@ -49,7 +49,7 @@ def rgb_to_cmy(color_dict):
 
 def get_colors(img):
     c = img.getcolors()
-    print(c)
+    # print(c)
 
 def cmy_to_rgb(val):
     val = 1 - val
