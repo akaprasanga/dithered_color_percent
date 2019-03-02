@@ -1,115 +1,232 @@
 import cv2
 import numpy as np
-from numba import jit
+from segmentation import Segment
+import time
+from PIL import Image
+import quantize
+import os
+import hitherdither
+import PIL
+from os import walk
 
-def minmax(v):
-    if v > 255:
-        v = 255
-    if v < 0:
-        v = 0
-    return v
-
-@jit(nopython=True, parallel=True)
-def dithering_gray(inMat, samplingF):
-    # https://en.wikipedia.org/wiki/Floyd–Steinberg_dithering
-    # https://www.youtube.com/watch?v=0L2n8Tg2FwI&t=0s&list=WL&index=151
-    # input is supposed as color
-    # grab the image dimensions
-    h = inMat.shape[0]
-    w = inMat.shape[1]
-
-    # loop over the image
-    for y in range(0, h - 1):
-        for x in range(1, w - 1):
-            # threshold the pixel
-            old_p = inMat[y, x]
-            new_p = np.round(samplingF * old_p / 255.0) * (255 / samplingF)
-            inMat[y, x] = new_p
-
-            quant_error_p = old_p - new_p
-
-            # inMat[y, x+1] = minmax(inMat[y, x+1] + quant_error_p * 7 / 16.0)
-            # inMat[y+1, x-1] = minmax(inMat[y+1, x-1] + quant_error_p * 3 / 16.0)
-            # inMat[y+1, x] = minmax(inMat[y+1, x] + quant_error_p * 5 / 16.0)
-            # inMat[y+1, x+1] = minmax(inMat[y+1, x+1] + quant_error_p * 1 / 16.0)
-
-            inMat[y, x + 1] = minmax(inMat[y, x + 1] + quant_error_p * 7 / 16.0)
-            inMat[y + 1, x - 1] = minmax(inMat[y + 1, x - 1] + quant_error_p * 3 / 16.0)
-            inMat[y + 1, x] = minmax(inMat[y + 1, x] + quant_error_p * 5 / 16.0)
-            inMat[y + 1, x + 1] = minmax(inMat[y + 1, x + 1] + quant_error_p * 1 / 16.0)
-
-            #   quant_error  := oldpixel - newpixel
-            #   pixel[x + 1][y    ] := pixel[x + 1][y    ] + quant_error * 7 / 16
-            #   pixel[x - 1][y + 1] := pixel[x - 1][y + 1] + quant_error * 3 / 16
-            #   pixel[x    ][y + 1] := pixel[x    ][y + 1] + quant_error * 5 / 16
-            #   pixel[x + 1][y + 1] := pixel[x + 1][y + 1] + quant_error * 1 / 16
-
-    # return the thresholded image
-    return inMat
-
-@jit(nopython=True, parallel=True)
-def dithering_color(inMat, samplingF):
-    # https://en.wikipedia.org/wiki/Floyd–Steinberg_dithering
-    # https://www.youtube.com/watch?v=0L2n8Tg2FwI&t=0s&list=WL&index=151
-    # input is supposed as color
-    # grab the image dimensions
-    h = inMat.shape[0]
-    w = inMat.shape[1]
-
-    # loop over the image
-    for y in range(0, h - 1):
-        for x in range(1, w - 1):
-            # threshold the pixel
-            old_b = inMat[y, x, 0]
-            old_g = inMat[y, x, 1]
-            old_r = inMat[y, x, 2]
-
-            new_b = np.round(samplingF * old_b / 255.0) * (255 / samplingF)
-            new_g = np.round(samplingF * old_g / 255.0) * (255 / samplingF)
-            new_r = np.round(samplingF * old_r / 255.0) * (255 / samplingF)
-
-            inMat[y, x, 0] = new_b
-            inMat[y, x, 1] = new_g
-            inMat[y, x, 2] = new_r
-
-            quant_error_b = old_b - new_b
-            quant_error_g = old_g - new_g
-            quant_error_r = old_r - new_r
-
-            inMat[y, x + 1, 0] = minmax(inMat[y, x + 1, 0] + quant_error_b * 7 / 16.0)
-            inMat[y, x + 1, 1] = minmax(inMat[y, x + 1, 1] + quant_error_g * 7 / 16.0)
-            inMat[y, x + 1, 2] = minmax(inMat[y, x + 1, 2] + quant_error_r * 7 / 16.0)
-
-            inMat[y + 1, x - 1, 0] = minmax(inMat[y + 1, x - 1, 0] + quant_error_b * 3 / 16.0)
-            inMat[y + 1, x - 1, 1] = minmax(inMat[y + 1, x - 1, 1] + quant_error_g * 3 / 16.0)
-            inMat[y + 1, x - 1, 2] = minmax(inMat[y + 1, x - 1, 2] + quant_error_r * 3 / 16.0)
-
-            inMat[y + 1, x, 0] = minmax(inMat[y + 1, x, 0] + quant_error_b * 5 / 16.0)
-            inMat[y + 1, x, 1] = minmax(inMat[y + 1, x, 1] + quant_error_g * 5 / 16.0)
-            inMat[y + 1, x, 2] = minmax(inMat[y + 1, x, 2] + quant_error_r * 5 / 16.0)
-
-            inMat[y + 1, x + 1, 0] = minmax(inMat[y + 1, x + 1, 0] + quant_error_b * 1 / 16.0)
-            inMat[y + 1, x + 1, 1] = minmax(inMat[y + 1, x + 1, 1] + quant_error_g * 1 / 16.0)
-            inMat[y + 1, x + 1, 2] = minmax(inMat[y + 1, x + 1, 2] + quant_error_r * 1 / 16.0)
-
-            #   quant_error  := oldpixel - newpixel
-            #   pixel[x + 1][y    ] := pixel[x + 1][y    ] + quant_error * 7 / 16
-            #   pixel[x - 1][y + 1] := pixel[x - 1][y + 1] + quant_error * 3 / 16
-            #   pixel[x    ][y + 1] := pixel[x    ][y + 1] + quant_error * 5 / 16
-            #   pixel[x + 1][y + 1] := pixel[x + 1][y + 1] + quant_error * 1 / 16
-
-    # return the thresholded image
-    return inMat
+seg = Segment()
+# area = 0
+# area_r = 0
 
 
-# read image
-inMat = cv2.imread('original/floral.png')  # lena.png')
-inMat = inMat[:,:,:3]
-# color ditering
-outMat_color = dithering_color(inMat.copy(), 1)
-cv2.imwrite('out_color.jpg', outMat_color)
+def dither(filename, number_of_color):
+    img = Image.open(filename).convert('RGB')
+    palette = hitherdither.palette.Palette.create_by_median_cut(img, n=number_of_color)
+    img_dithered = hitherdither.ordered.bayer.bayer_dithering(
+        img, palette, 10, order=8)
+    name = filename.split('/')
+    name = name[len(name) - 1]
+    name = 'c-'+str(number_of_color)+name
 
-# gray ditering
-# grayMat = cv2.cvtColor(inMat, cv2.COLOR_BGR2GRAY)
-# outMat_gray = dithering_gray(grayMat.copy(), 1)
-# cv2.imwrite('out_gray.jpg', outMat_gray)
+    if not os.path.exists('A_DITHERED'):
+        os.makedirs('A_DITHERED')
+    os_path = os.path.dirname(os.path.abspath(__file__))
+    os_path =os_path.replace(os.sep, '/')
+    path = os_path + '/A_DITHERED/' + name
+    # print(path)
+    # print(f_name,'\n', file_extension)
+
+    img_dithered.save(path)
+    return path
+
+
+def scale_up_image(img, factor):
+    h, w = img.shape[:2]
+    h = h * factor
+    w = w * factor
+    img = cv2.resize(img, (w,h))
+    return img
+
+def scale_down_image(img, factor):
+    h, w = img.shape[:2]
+    h = h // factor
+    w = w // factor
+    img = cv2.resize(img, (w,h))
+    return img
+
+def get_cdn_in_segment(img):
+    distribution_dict = {}
+    image = Image.fromarray(img.astype('uint8'), 'RGB')
+    colors = image.getcolors()
+
+    black_pixels_number, rgb_value = colors[len(colors)-1]
+    # print(colors)
+    area = img.shape[0] * img.shape[1]
+    segment_area = area - black_pixels_number
+
+    for i in range (0, len(colors)-1):
+        pixels, c = colors[i]
+        color_percent = (pixels/segment_area)
+        distribution_dict[c] = color_percent
+
+    return distribution_dict
+
+
+def get_colors(img):
+    c_tuple = np.unique(img.reshape(-1, img.shape[2]), axis=0)
+    return c_tuple
+
+
+def convert_to_pillow_format(img):
+    return Image.fromarray(img.astype('uint8'), 'RGB')
+
+
+def get_all_colors_of_image(img):
+    image = convert_to_pillow_format(img)
+    colors = image.getcolors()
+    colors = list(zip(*colors))[1]
+    # print(colors)
+
+
+def get_max_value_from_dict(dictionary):
+    values = dictionary.values()
+    max_value = max(values)
+    return max_value
+
+
+def count_proportion(segments, image, color_pockets):
+    orig = image
+    mask_r = np.zeros(image.shape[:2], dtype="uint8")
+    mask_g = np.zeros(image.shape[:2], dtype="uint8")
+    mask_b = np.zeros(image.shape[:2], dtype="uint8")
+
+    for (i, segVal) in enumerate(np.unique(segments)):
+        mask = np.zeros(image.shape[:2], dtype="uint8")
+        mask[segments == segVal] = 255  # Five start code for replacing values
+
+        masked_segment = cv2.bitwise_and(orig, orig, mask=mask)
+        masked_segment = cv2.cvtColor(masked_segment,cv2.COLOR_BGR2RGB)
+        color_dist = get_cdn_in_segment(masked_segment)
+        # print(segVal, color_dist)
+        # print(color_dist)
+        max_value = get_max_value_from_dict(color_dist)
+        # if max_value > 0.8:
+        #     print('passs')
+        cmy_color = quantize.rgb_to_cmy(color_dist)
+        q_color = quantize.quantize_into_pockets(cmy_color,pocket_number=color_pockets)
+        # q_color = cmy_color
+
+        mean_c = 0
+        mean_m = 0
+        mean_y = 0
+        # print(color_dist)
+        for (key, value) in q_color.items():
+            c, m, y = key
+            mean_c = mean_c + c * value
+            mean_m = mean_m + m * value
+            mean_y = mean_y + y * value
+
+        mean_r = quantize.cmy_to_rgb(mean_c)
+        mean_g = quantize.cmy_to_rgb(mean_m)
+        mean_b = quantize.cmy_to_rgb(mean_y)
+
+        mask_r[segments == segVal] = int(mean_r)  # Five start code for replacing values
+        mask_g[segments == segVal] = int(mean_g)  # Five start code for replacing values
+        mask_b[segments == segVal] = int(mean_b)  # Five start code for replacing values
+
+        # print(mean_r, mean_g, mean_b)
+
+    final1 = np.dstack((mask_r, mask_g, mask_b))
+    final2 = np.dstack((mask_b, mask_g, mask_r))
+
+    return final1
+
+
+def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets):
+    start = time.time()
+    if dither_flag == True:
+        p = filename
+        f_name, file_extension = os.path.splitext(p)
+        if file_extension == '.jpg' or file_extension == '.jpeg' or file_extension == '.JPG':
+            temp = cv2.imread(p)
+            p = f_name + '.png'
+            cv2.imwrite(p, temp)
+        try:
+            path = dither(p, dither_color)
+            filename = path
+        except:
+            print('dither failed')
+    segmented, boundaries, segmented_r = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets)
+
+    original = cv2.imread(filename)
+    original_r = scale_up_image(original, 3)
+
+    original_copy = original.copy()
+    original_copy_r = original_r.copy()
+    original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
+    original_r = cv2.cvtColor(original_r, cv2.COLOR_BGR2RGB)
+
+    output_img_path = ''
+    dithered_img_path = ''
+    segmented_img_path = ''
+
+    color_replaced = count_proportion(segmented, original,color_pockets)
+    color_replaced_r = count_proportion(segmented_r, original_r,color_pockets)
+    color_replaced_r = scale_down_image(color_replaced_r, 3)
+
+    name = filename.split('/')
+    name = name[len(name)-1]
+    if not os.path.exists('A_OUTPUT'):
+        os.makedirs('A_OUTPUT')
+    output_img_path = 'A_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name
+    cv2.imwrite(output_img_path, color_replaced_r)
+    segmented_img_path = 'A_SEGMENTED/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets) + name
+    segmented_image = cv2.imread(segmented_img_path)
+    dithered_img_path = 'A_DITHERED/' + name
+    dithered_img = cv2.imread(dithered_img_path)
+
+    try:
+        joined_img = np.hstack((original_copy,dithered_img,color_replaced))
+        if not os.path.exists('A_STICHED_OUTPUT'):
+            os.makedirs('A_STICHED_OUTPUT')
+        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(color_replaced, 'No Resize', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(color_replaced_r, 'Resized', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
+        if not os.path.exists('A_RESIZED_OUTPUT'):
+            os.makedirs('A_RESIZED_OUTPUT')
+        cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
+
+    except:
+        joined_img = np.hstack((original_copy,segmented_image,color_replaced))
+        joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
+        if not os.path.exists('A_STICHED_OUTPUT'):
+            os.makedirs('A_STICHED_OUTPUT')
+        if not os.path.exists('A_RESIZED_OUTPUT'):
+            os.makedirs('A_RESIZED_OUTPUT')
+        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img)
+        cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
+    print("Time Elapsed = ",time.time()-start)
+    dir_path = os.getcwd()
+    dir_path = dir_path.replace('\\','/')
+    output_img_path = dir_path + '/' + output_img_path
+    dithered_img_path = dir_path + '/' + dithered_img_path
+    segmented_img_path = dir_path + '/' + segmented_img_path
+
+    if dither_flag == True:
+        return output_img_path, dithered_img_path, str(time.time()-start)
+    else:
+        return output_img_path, segmented_img_path, str(time.time()-start)
+
+# f = []
+# for (dirpath, dirnames, filenames) in walk('test'):
+#     f.extend(filenames)
+#     break
+#
+# counter = 0
+# for each in f:
+#     name = each
+#     main(name,100,False,3,3,3)
+#     print("processing image", counter)
+#     counter += 1
+
+# a,b,c = main('E:/Work/dithered_color_percent/images/floral.processed.png',True, 4,100,False,3,3,3)
+# print(a,b)
+# path = dither('C:/Users/prasa/Downloads/Bishal/dithered_color_percent/images/Siam-Red-Pride.jpg',4)
+# print(path)

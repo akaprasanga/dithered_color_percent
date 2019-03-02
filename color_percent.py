@@ -7,10 +7,11 @@ import quantize
 import os
 import hitherdither
 import PIL
-
+from os import walk
 
 seg = Segment()
-area = 0
+# area = 0
+# area_r = 0
 
 
 def dither(filename, number_of_color):
@@ -34,6 +35,20 @@ def dither(filename, number_of_color):
     return path
 
 
+def scale_up_image(img, factor):
+    h, w = img.shape[:2]
+    h = h * factor
+    w = w * factor
+    img = cv2.resize(img, (w,h))
+    return img
+
+def scale_down_image(img, factor):
+    h, w = img.shape[:2]
+    h = h // factor
+    w = w // factor
+    img = cv2.resize(img, (w,h))
+    return img
+
 def get_cdn_in_segment(img):
     distribution_dict = {}
     image = Image.fromarray(img.astype('uint8'), 'RGB')
@@ -41,6 +56,7 @@ def get_cdn_in_segment(img):
 
     black_pixels_number, rgb_value = colors[len(colors)-1]
     # print(colors)
+    area = img.shape[0] * img.shape[1]
     segment_area = area - black_pixels_number
 
     for i in range (0, len(colors)-1):
@@ -67,6 +83,12 @@ def get_all_colors_of_image(img):
     # print(colors)
 
 
+def get_max_value_from_dict(dictionary):
+    values = dictionary.values()
+    max_value = max(values)
+    return max_value
+
+
 def count_proportion(segments, image, color_pockets):
     orig = image
     mask_r = np.zeros(image.shape[:2], dtype="uint8")
@@ -82,6 +104,9 @@ def count_proportion(segments, image, color_pockets):
         color_dist = get_cdn_in_segment(masked_segment)
         # print(segVal, color_dist)
         # print(color_dist)
+        max_value = get_max_value_from_dict(color_dist)
+        # if max_value > 0.8:
+        #     print('passs')
         cmy_color = quantize.rgb_to_cmy(color_dist)
         q_color = quantize.quantize_into_pockets(cmy_color,pocket_number=color_pockets)
         # q_color = cmy_color
@@ -115,48 +140,76 @@ def count_proportion(segments, image, color_pockets):
 def main(filename, segment_number, connectivity, compactness, sigma, color_pockets):
 
     start = time.time()
-    segmented, boundaries = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets)
+    segmented, boundaries, segmented_r = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets)
     # segmented = seg.fz_superpixel(filename, 200)
     # segmented = seg.qc_superpixel(filename,1, 20)
     original = cv2.imread(filename)
-    original_copy = original
-    original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
+    original_r = scale_up_image(original, 3)
 
-    global area
-    area = original.shape[0]*original.shape[1]
+    original_copy = original.copy()
+    original_copy_r = original_r.copy()
+    original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
+    original_r = cv2.cvtColor(original_r, cv2.COLOR_BGR2RGB)
+
+    # global area, area_r
+    # area = original.shape[0]*original.shape[1]
+    # area_r = original_r.shape[0]*original_r.shape[1]
+
     color_replaced = count_proportion(segmented, original,color_pockets)
+    color_replaced_r = count_proportion(segmented_r, original_r,color_pockets)
+    color_replaced_r = scale_down_image(color_replaced_r, 3)
+
     name = filename.split('/')
     name = name[len(name)-1]
     if not os.path.exists('A_OUTPUT'):
         os.makedirs('A_OUTPUT')
     cv2.imwrite('A_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, color_replaced)
-    print("Time Elapsed = ",time.time()-start)
     segmented_image = cv2.imread('A_SEGMENTED/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets) + name)
     dithered_img_name = 'A_DITHERED/' + name
     dithered_img = cv2.imread(dithered_img_name)
 
     try:
         joined_img = np.hstack((original_copy,dithered_img,color_replaced))
+        if not os.path.exists('A_STICHED_OUTPUT'):
+            os.makedirs('A_STICHED_OUTPUT')
+        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(color_replaced, 'No Resize', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(color_replaced_r, 'Resized', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
+        if not os.path.exists('A_RESIZED_OUTPUT'):
+            os.makedirs('A_RESIZED_OUTPUT')
+        cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
+
     except:
         joined_img = np.hstack((original_copy,segmented_image,color_replaced))
-    if not os.path.exists('A_STICHED_OUTPUT'):
-        os.makedirs('A_STICHED_OUTPUT')
-    cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name,joined_img)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        # cv2.putText(color_replaced, 'No Resize', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        # cv2.putText(color_replaced_r, 'Resized', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
+        if not os.path.exists('A_STICHED_OUTPUT'):
+            os.makedirs('A_STICHED_OUTPUT')
+        if not os.path.exists('A_RESIZED_OUTPUT'):
+            os.makedirs('A_RESIZED_OUTPUT')
+        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img)
+        cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
+    print("Time Elapsed = ",time.time()-start)
+
     return color_replaced,segmented_image, time.time()-start
 
 # f = []
-# for (dirpath, dirnames, filenames) in walk('6colordither'):
+# for (dirpath, dirnames, filenames) in walk('test'):
 #     f.extend(filenames)
 #     break
 #
 # counter = 0
 # for each in f:
 #     name = each
-#     main(name)
+#     main(name,100,False,3,3,3)
 #     print("processing image", counter)
 #     counter += 1
 
-# a,b,c = main('E:/Work/dithered_color_percent/images/Ascenure.processed.png',100,False,3,3,3)
+# a,b,c = main('E:/Work/dithered_color_percent/images/floral.processed.png',100,False,3,3,3)
 # print(a,b)
 # path = dither('C:/Users/prasa/Downloads/Bishal/dithered_color_percent/images/Siam-Red-Pride.jpg',4)
 # print(path)
