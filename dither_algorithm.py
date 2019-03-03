@@ -34,7 +34,6 @@ def dither(filename, number_of_color):
     img_dithered.save(path)
     return path
 
-
 def scale_up_image(img, factor):
     h, w = img.shape[:2]
     h = h * factor
@@ -104,7 +103,7 @@ def count_proportion(segments, image, color_pockets):
         color_dist = get_cdn_in_segment(masked_segment)
         # print(segVal, color_dist)
         # print(color_dist)
-        max_value = get_max_value_from_dict(color_dist)
+        # max_value = get_max_value_from_dict(color_dist)
         # if max_value > 0.8:
         #     print('passs')
         cmy_color = quantize.rgb_to_cmy(color_dist)
@@ -132,7 +131,7 @@ def count_proportion(segments, image, color_pockets):
         # print(mean_r, mean_g, mean_b)
 
     final1 = np.dstack((mask_r, mask_g, mask_b))
-    final2 = np.dstack((mask_b, mask_g, mask_r))
+    # final2 = np.dstack((mask_b, mask_g, mask_r))
 
     return final1
 
@@ -151,22 +150,17 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
             filename = path
         except:
             print('dither failed')
-    segmented, boundaries, segmented_r = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets)
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets)
 
     original = cv2.imread(filename)
     original_r = scale_up_image(original, 3)
 
     original_copy = original.copy()
-    original_copy_r = original_r.copy()
     original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
     original_r = cv2.cvtColor(original_r, cv2.COLOR_BGR2RGB)
 
-    output_img_path = ''
-    dithered_img_path = ''
-    segmented_img_path = ''
-
-    color_replaced = count_proportion(segmented, original,color_pockets)
-    color_replaced_r = count_proportion(segmented_r, original_r,color_pockets)
+    # color_replaced = count_proportion(segmented, original,color_pockets)
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
     color_replaced_r = scale_down_image(color_replaced_r, 3)
 
     name = filename.split('/')
@@ -175,34 +169,34 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
         os.makedirs('A_OUTPUT')
     output_img_path = 'A_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name
     cv2.imwrite(output_img_path, color_replaced_r)
-    segmented_img_path = 'A_SEGMENTED/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets) + name
+    # segmented_img_path = 'A_SEGMENTED/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets) + name
     segmented_image = cv2.imread(segmented_img_path)
     dithered_img_path = 'A_DITHERED/' + name
     dithered_img = cv2.imread(dithered_img_path)
 
     try:
-        joined_img = np.hstack((original_copy,dithered_img,color_replaced))
+        joined_img = np.hstack((original_copy,dithered_img,color_replaced_r))
         if not os.path.exists('A_STICHED_OUTPUT'):
             os.makedirs('A_STICHED_OUTPUT')
         cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(color_replaced, 'No Resize', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(color_replaced_r, 'Resized', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-        joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
-        if not os.path.exists('A_RESIZED_OUTPUT'):
-            os.makedirs('A_RESIZED_OUTPUT')
-        cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # cv2.putText(color_replaced, 'No Resize', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        # cv2.putText(color_replaced_r, 'Resized', (0, 20), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        # joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
+        # if not os.path.exists('A_RESIZED_OUTPUT'):
+        #     os.makedirs('A_RESIZED_OUTPUT')
+        # cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
 
     except:
-        joined_img = np.hstack((original_copy,segmented_image,color_replaced))
-        joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
+        joined_img = np.hstack((original_copy,segmented_image,color_replaced_r))
+        # joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
         if not os.path.exists('A_STICHED_OUTPUT'):
             os.makedirs('A_STICHED_OUTPUT')
-        if not os.path.exists('A_RESIZED_OUTPUT'):
-            os.makedirs('A_RESIZED_OUTPUT')
+        # if not os.path.exists('A_RESIZED_OUTPUT'):
+        #     os.makedirs('A_RESIZED_OUTPUT')
         cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img)
-        cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
-    print("Time Elapsed = ",time.time()-start)
+        # cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
+    print("Time Elapsed = ", time.time()-start)
     dir_path = os.getcwd()
     dir_path = dir_path.replace('\\','/')
     output_img_path = dir_path + '/' + output_img_path

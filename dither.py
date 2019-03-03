@@ -18,7 +18,7 @@ import dither_algorithm
 
 
 class WidgetGallery(QDialog):
-    add_post = pyqtSignal(str,str,str)
+    add_post = pyqtSignal(str,str,str,str)
 
     def __init__(self, parent=None):
         super(WidgetGallery, self).__init__(parent)
@@ -60,17 +60,18 @@ class WidgetGallery(QDialog):
         location = int(item.text())
         new_img_path = self.list_of_files[location]
         self.another_process.current_path = new_img_path
-        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity = self.get_status()
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity= self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity)
 
+
         self.another_process.start()
-        self.another_process.add_post.connect(self.tread_done)
         # self.disable_vitals()
+
+        self.another_process.add_post.connect(self.tread_done)
 
         self.img_to_process = new_img_path
         self.display_image(new_img_path)
         # self.process_image()
-
 
     def open(self):
         options = QFileDialog.Options()
@@ -217,14 +218,17 @@ class WidgetGallery(QDialog):
                 self.superpixels(self.img_to_process)
 
     def process_all_images(self):
-        for each in self.list_of_files:
-            self.img_to_process = each
-            self.process_image()
-        self.display_image(self.img_to_process)
-        print('Finished Processing Output are in stored in folders')
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity = self.get_status()
+        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value,
+                                  color_pocket_number, connectivity)
 
-    @QtCore.pyqtSlot(str,str,str)
-    def tread_done(self, output_path, dither_path, time):
+        self.another_process.batch_process_flag = True
+        self.another_process.list_of_files = self.list_of_files
+        self.another_process.start()
+        self.another_process.add_post.connect(self.tread_done)
+
+    @QtCore.pyqtSlot(str,str,str,str)
+    def tread_done(self,processing_img_path, output_path, dither_path, time):
         if output_path == 'e':
             print('ERROR')
             QMessageBox.about(self, "Alert",
@@ -232,16 +236,19 @@ class WidgetGallery(QDialog):
         else:
             print(output_path, dither_path, time)
             self.time.setText('Time Taken to Process Image =' + time)
-            self.update_img_after_thread(output_path, dither_path)
+            self.update_img_after_thread(processing_img_path,output_path, dither_path)
 
-    def update_img_after_thread(self,output_path, dithered_path):
+    def update_img_after_thread(self,processing_img_path,output_path, dithered_path):
+        main_img = QPixmap(processing_img_path)
         pixmap_output = QPixmap(output_path)
         pixmap_dither = QPixmap(dithered_path)
         w = self.topRightGroupBox.width()
         h = self.topRightGroupBox.height()
+        mainsmaller_pixmap = main_img.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
         outputsmaller_pixmap = pixmap_output.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
         dithersmaller_pixmap = pixmap_dither.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
 
+        self.img_label.setPixmap(mainsmaller_pixmap)
         self.segmented_img_label.setPixmap(dithersmaller_pixmap)
         self.final_image_label.setPixmap(outputsmaller_pixmap)
 
@@ -363,7 +370,7 @@ class WidgetGallery(QDialog):
 
 
 class WorkerThread(QThread):
-    add_post = pyqtSignal(str,str,str)
+    add_post = pyqtSignal(str,str,str,str)
 
     def __init__(self, parent=None):
         super(WorkerThread, self).__init__(parent)
@@ -375,15 +382,25 @@ class WorkerThread(QThread):
         self.compactness_value = 3
         self.color_pocket_number = 3
         self.connectivity = False
+        self.batch_process_flag = False
+        self.list_of_files = []
 
     @QtCore.pyqtSlot()
     def run(self):
         try:
-            output_path, dither_path, time = dither_algorithm.main(self.current_path, self.dither_flag, self.dither_color, self.number_of_segments,
-                                  self.connectivity, self.compactness_value, self.sigma_value, self.color_pocket_number)
-            self.add_post.emit(output_path, dither_path, time)
+            if self.batch_process_flag == True:
+                for each in self.list_of_files:
+                    output_path, dither_path, time = dither_algorithm.main(each, self.dither_flag,
+                                                                           self.dither_color, self.number_of_segments,
+                                                                           self.connectivity, self.compactness_value,
+                                                                           self.sigma_value, self.color_pocket_number)
+                    self.add_post.emit(each,output_path, dither_path, time)
+            else:
+                output_path, dither_path, time = dither_algorithm.main(self.current_path, self.dither_flag, self.dither_color, self.number_of_segments,
+                                      self.connectivity, self.compactness_value, self.sigma_value, self.color_pocket_number)
+                self.add_post.emit(self.current_path,output_path, dither_path, time)
         except:
-            self.add_post.emit('e', 'e', 'e')
+            self.add_post.emit('e', 'e', 'e', 'e')
 
 
 if __name__ == '__main__':
