@@ -15,7 +15,7 @@ class Segment:
     def __init__(self):
         pass
 
-    def slic_superpixel(self, filename, segment_number, connectivity, s, k, color_pockets):
+    def slic_superpixel(self, filename, segment_number, connectivity, s, k, color_pockets, resize_flag, resize_factor):
         """
         :param filename: image to segment
         :param segment_number: nomuber of regions based on LAB color Space
@@ -26,7 +26,10 @@ class Segment:
 
         image = image[:, :, :3]
         # h, w = image.shape[0], image.shape[1]
-        image_r = rescale(image, 3)
+        if resize_flag == True:
+            image_r = rescale(image, resize_factor)
+        else:
+            image_r = rescale(image, 1)
         # print(h,w,image.shape)
         # segments_slic = slic(image, n_segments=segment_number, enforce_connectivity=connectivity, convert2lab=True,
         #                      multichannel=True, sigma=s, compactness=k)

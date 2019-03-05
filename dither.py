@@ -57,12 +57,13 @@ class WidgetGallery(QDialog):
         QApplication.setStyle(QStyleFactory.create(styleName))
 
     def itemClicked(self, item):
+        self.another_process.batch_process_flag = False
+        self.disable_vitals()
         location = int(item.text())
         new_img_path = self.list_of_files[location]
         self.another_process.current_path = new_img_path
-        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity= self.get_status()
-        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity)
-
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor = self.get_status()
+        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor)
 
         self.another_process.start()
         # self.disable_vitals()
@@ -105,9 +106,16 @@ class WidgetGallery(QDialog):
         else:
             connectivity = False
 
-        return dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity
+        if self.resizeButton.isChecked():
+            resize_flag = True
+            resize_factor = self.resizefactor.value()
+        else:
+            resize_flag = False
+            resize_factor = 1
 
-    def set_status_to_thread(self,dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity):
+        return dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor
+
+    def set_status_to_thread(self,dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor):
         self.another_process.dither_flag = dither_flag
         self.another_process.dither_color = dither_color
         self.another_process.number_of_segments = number_of_segments
@@ -115,10 +123,19 @@ class WidgetGallery(QDialog):
         self.another_process.compactness_value = compactness_value
         self.another_process.color_pocket_number = color_pocket_number
         self.another_process.connectivity = connectivity
+        self.another_process.resize_flag = resize_flag
+        self.another_process.resize_factor = resize_factor
 
     def disable_vitals(self):
-        self.processPushButton.setEnabled(False)
-        self.defaultPush.setEnabled(False)
+        # self.processPushButton.setDisabled(True)
+        # self.defaultPushButton.setDisabled(True)
+        self.topLeftGroupBox.setDisabled(True)
+
+    def enable_vitals(self):
+        # self.processPushButton.setEnabled(True)
+        # self.defaultPushButton.setEnabled(True)
+        self.topLeftGroupBox.setEnabled(True)
+
 
     def changePalette(self):
         if (self.useStylePaletteCheckBox.isChecked()):
@@ -217,10 +234,17 @@ class WidgetGallery(QDialog):
                     self.img_to_process = self.list_of_files[0]
                 self.superpixels(self.img_to_process)
 
+    def disable_resize_spin_box(self):
+        if self.resizeButton.isChecked():
+            self.resizefactor.setDisabled(False)
+        else:
+            self.resizefactor.setEnabled(False)
+
     def process_all_images(self):
-        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity = self.get_status()
+        self.disable_vitals()
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor = self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value,
-                                  color_pocket_number, connectivity)
+                                  color_pocket_number, connectivity, resize_flag, resize_factor)
 
         self.another_process.batch_process_flag = True
         self.another_process.list_of_files = self.list_of_files
@@ -229,12 +253,14 @@ class WidgetGallery(QDialog):
 
     @QtCore.pyqtSlot(str,str,str,str)
     def tread_done(self,processing_img_path, output_path, dither_path, time):
+
+        self.enable_vitals()
         if output_path == 'e':
             print('ERROR')
             QMessageBox.about(self, "Alert",
                               "The Number of Colors defined in Dithering is more than the colors in Image Itself!!")
         else:
-            print(output_path, dither_path, time)
+            # print(output_path, dither_path, time)
             self.time.setText('Time Taken to Process Image =' + time)
             self.update_img_after_thread(processing_img_path,output_path, dither_path)
 
@@ -271,12 +297,22 @@ class WidgetGallery(QDialog):
 
         self.ditherRadioButton = QRadioButton("Dither and then Process")
         self.ditherRadioButton.setChecked(True)
+
+        self.resizeButton = QCheckBox("Resize and then Process")
+        self.resizeButton.setChecked(True)
+        self.resizeButton.clicked.connect(self.disable_resize_spin_box)
+
         self.ditherRadioButton.clicked.connect(self.enable_dither_color)
         self.ditherColor = QSpinBox()
         self.ditherColor.setMaximum(15)
         self.ditherColor.setMinimum(2)
         self.ditherColor.setValue(4)
         # self.ditherColor.setEnabled(False)
+
+        self.resizefactor = QSpinBox()
+        self.resizefactor.setMaximum(4)
+        self.resizefactor.setMinimum(2)
+        self.resizefactor.setValue(3)
 
         self.checkBox = QCheckBox("Connectivity Between Segments")
         self.checkBox.setEnabled(True)
@@ -287,7 +323,7 @@ class WidgetGallery(QDialog):
 
         self.compactness = QSpinBox()
         self.compactness.setValue(3)
-        self.compactness.setMinimum(0)
+        self.compactness.setMinimum(1)
 
         self.sigma = QSpinBox()
         self.sigma.setValue(3)
@@ -298,9 +334,11 @@ class WidgetGallery(QDialog):
         self.quant_levels.setValue(4)
 
         dither_color_label = QLabel("Number of Colors to be Used in Dithering")
+        resize_img_label = QLabel("Upscaling Factor")
+
         segment_label = QLabel("Number of Segments")
         compactness_label = QLabel("Compactness:Larger Value,Makes Square Segments")
-        sigma_label = QLabel("Sigma:Size of Gussian Filter Kernel")
+        sigma_label = QLabel("Lower the Number More Detailed Output")
         quant_label = QLabel("Color:Define Number of Pockets of Color to be Used")
         self.time = QLabel()
 
@@ -314,6 +352,9 @@ class WidgetGallery(QDialog):
         layout.addWidget(dither_color_label)
         layout.addWidget(self.ditherColor)
 
+        layout.addWidget(self.resizeButton)
+        layout.addWidget(resize_img_label)
+        layout.addWidget(self.resizefactor)
         layout.addWidget(self.checkBox)
         layout.addWidget(segment_label)
         layout.addWidget(self.segments_number)
@@ -384,6 +425,8 @@ class WorkerThread(QThread):
         self.connectivity = False
         self.batch_process_flag = False
         self.list_of_files = []
+        self.resize_flag = True
+        self.resize_factor = 3
 
     @QtCore.pyqtSlot()
     def run(self):
@@ -393,11 +436,11 @@ class WorkerThread(QThread):
                     output_path, dither_path, time = dither_algorithm.main(each, self.dither_flag,
                                                                            self.dither_color, self.number_of_segments,
                                                                            self.connectivity, self.compactness_value,
-                                                                           self.sigma_value, self.color_pocket_number)
+                                                                           self.sigma_value, self.color_pocket_number, self.resize_flag, self.resize_factor)
                     self.add_post.emit(each,output_path, dither_path, time)
             else:
                 output_path, dither_path, time = dither_algorithm.main(self.current_path, self.dither_flag, self.dither_color, self.number_of_segments,
-                                      self.connectivity, self.compactness_value, self.sigma_value, self.color_pocket_number)
+                                      self.connectivity, self.compactness_value, self.sigma_value, self.color_pocket_number, self.resize_flag, self.resize_factor)
                 self.add_post.emit(self.current_path,output_path, dither_path, time)
         except:
             self.add_post.emit('e', 'e', 'e', 'e')
@@ -408,5 +451,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     gallery = WidgetGallery()
     gallery.showMaximized()
+    gallery.setWindowFlag(QtCore.Qt.WindowMinMaxButtonsHint)
     gallery.show()
     sys.exit(app.exec_()) 

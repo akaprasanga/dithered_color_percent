@@ -136,7 +136,7 @@ def count_proportion(segments, image, color_pockets):
     return final1
 
 
-def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets):
+def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor):
     start = time.time()
     if dither_flag == True:
         p = filename
@@ -150,18 +150,24 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
             filename = path
         except:
             print('dither failed')
-    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets)
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor)
 
     original = cv2.imread(filename)
-    original_r = scale_up_image(original, 3)
+    if resize_flag == True:
+        original_r = scale_up_image(original, resize_factor)
+    else:
+        original_r = scale_up_image(original, 1)
 
     original_copy = original.copy()
-    original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
+    # original = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
     original_r = cv2.cvtColor(original_r, cv2.COLOR_BGR2RGB)
 
     # color_replaced = count_proportion(segmented, original,color_pockets)
     color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
-    color_replaced_r = scale_down_image(color_replaced_r, 3)
+    if resize_flag == True:
+        color_replaced_r = scale_down_image(color_replaced_r, resize_factor)
+    else:
+        color_replaced_r = scale_up_image(color_replaced_r, 1)
 
     name = filename.split('/')
     name = name[len(name)-1]
@@ -220,7 +226,7 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
 #     print("processing image", counter)
 #     counter += 1
 
-# a,b,c = main('E:/Work/dithered_color_percent/images/floral.processed.png',True, 4,100,False,3,3,3)
+# a,b,c = main('E:/Work/dithered_color_percent/images/floral.processed.png',True, 4,100,False,3,3,3, True, 1)
 # print(a,b)
 # path = dither('C:/Users/prasa/Downloads/Bishal/dithered_color_percent/images/Siam-Red-Pride.jpg',4)
 # print(path)
