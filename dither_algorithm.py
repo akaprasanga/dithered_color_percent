@@ -6,6 +6,7 @@ from PIL import Image
 import quantize
 import os
 import hitherdither
+import dominant_color_track as cluster
 import PIL
 from os import walk
 
@@ -15,7 +16,10 @@ seg = Segment()
 
 
 def dither(filename, number_of_color):
-    img = Image.open(filename).convert('RGB')
+    img = cv2.imread(filename)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(img)
+    # img = Image.open(filename).convert('RGB')
     palette = hitherdither.palette.Palette.create_by_median_cut(img, n=number_of_color)
     img_dithered = hitherdither.ordered.bayer.bayer_dithering(
         img, palette, 10, order=8)
@@ -136,7 +140,9 @@ def count_proportion(segments, image, color_pockets):
     return final1
 
 
-def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor):
+def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number):
+    print('Processing started ==', filename)
+    original_without_dither = cv2.imread(filename)
     start = time.time()
     if dither_flag == True:
         p = filename
@@ -181,7 +187,7 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
     dithered_img = cv2.imread(dithered_img_path)
 
     try:
-        joined_img = np.hstack((original_copy,dithered_img,color_replaced_r))
+        joined_img = np.hstack((original_without_dither,dithered_img,color_replaced_r))
         if not os.path.exists('A_STICHED_OUTPUT'):
             os.makedirs('A_STICHED_OUTPUT')
         cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
@@ -194,7 +200,7 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
         # cv2.imwrite('A_RESIZED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img_r)
 
     except:
-        joined_img = np.hstack((original_copy,segmented_image,color_replaced_r))
+        joined_img = np.hstack((original_without_dither,segmented_image,color_replaced_r))
         # joined_img_r = np.hstack((original_copy, color_replaced, color_replaced_r))
         if not os.path.exists('A_STICHED_OUTPUT'):
             os.makedirs('A_STICHED_OUTPUT')
@@ -208,11 +214,12 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
     output_img_path = dir_path + '/' + output_img_path
     dithered_img_path = dir_path + '/' + dithered_img_path
     segmented_img_path = dir_path + '/' + segmented_img_path
+    reduced_color_path, cluster_number = cluster.get_dominant_color(output_img_path,reduce_color_number)
 
     if dither_flag == True:
-        return output_img_path, dithered_img_path, str(time.time()-start)
+        return output_img_path, reduced_color_path, str(time.time()-start)
     else:
-        return output_img_path, segmented_img_path, str(time.time()-start)
+        return output_img_path, reduced_color_path, str(time.time()-start)
 
 # f = []
 # for (dirpath, dirnames, filenames) in walk('test'):
@@ -226,7 +233,7 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
 #     print("processing image", counter)
 #     counter += 1
 
-# a,b,c = main('E:/Work/dithered_color_percent/images/floral.processed.png',True, 4,100,False,3,3,3, True, 1)
+# a,b,c = main('E:/New folder/Vertical/c21.bmp',True, 4,100,False,3,3,3, True, 1,6)
 # print(a,b)
 # path = dither('C:/Users/prasa/Downloads/Bishal/dithered_color_percent/images/Siam-Red-Pride.jpg',4)
 # print(path)
