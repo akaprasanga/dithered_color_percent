@@ -1,6 +1,8 @@
 from skimage.segmentation import slic,felzenszwalb,quickshift
 from skimage.segmentation import mark_boundaries
 from skimage.transform import rescale
+from skimage.transform import resize
+
 import numpy as np
 from skimage.util import img_as_float
 from skimage import io
@@ -15,24 +17,20 @@ class Segment:
     def __init__(self):
         pass
 
-    def slic_superpixel(self, filename, segment_number, connectivity, s, k, color_pockets, resize_flag, resize_factor):
+    def slic_superpixel(self, filename, segment_number, connectivity, s, k, color_pockets, resize_flag, resize_factor, dim_change_flag, dim):
         """
         :param filename: image to segment
         :param segment_number: nomuber of regions based on LAB color Space
         :return: segmented images with defined boundaries
         """
-
+        # print('Before Segmentation == ', filename)
         image = img_as_float(io.imread(filename))
+        # if dim_change_flag == True:
+        #     w, h = dim
+        #     image =resize(image,(h,w),anti_aliasing=True)
 
-        image = image[:, :, :3]
-        # h, w = image.shape[0], image.shape[1]
-        if resize_flag == True:
-            image_r = rescale(image, resize_factor)
-        else:
-            image_r = rescale(image, 1)
-        # print(h,w,image.shape)
-        # segments_slic = slic(image, n_segments=segment_number, enforce_connectivity=connectivity, convert2lab=True,
-        #                      multichannel=True, sigma=s, compactness=k)
+
+        image_r = image[:, :, :3]
 
         segments_slic_r = slic(image_r, n_segments=segment_number, enforce_connectivity=connectivity, convert2lab=True,
                              multichannel=True, sigma=s, compactness=k)
@@ -40,20 +38,14 @@ class Segment:
         # boundaries = mark_boundaries(image, segments_slic)
         boundaries_r = mark_boundaries(image_r, segments_slic_r)
 
-        # plt.imsave('bound.jpg', boundaries)
-        # boundaries = rescale(boundaries, (h, w),anti_aliasing=True).shape
-        # segments_slic = rescale(segments_slic, (h, w),anti_aliasing=True).shape
         fname = filename.split('/')
         fname = fname[len(fname)-1]
         if not os.path.exists('A_SEGMENTED'):
             os.makedirs('A_SEGMENTED')
-        # plt.imsave('A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries)
         length = len(fname)
-        # print(fname[0:length-4])
         fname = fname[0:length-4]+'-r'+fname[length-4:length]
-        # print(fname)
         io.imsave('A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries_r)
-        # plt.imsave('A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries_r)
+        plt.imsave('A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries_r)
         segmented_img_path = 'A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname
         return segments_slic_r, segmented_img_path
 
