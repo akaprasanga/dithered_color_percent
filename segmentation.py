@@ -45,7 +45,6 @@ class Segment:
         length = len(fname)
         fname = fname[0:length-4]+'-r'+fname[length-4:length]
         io.imsave('A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries_r)
-        plt.imsave('A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname, boundaries_r)
         segmented_img_path = 'A_SEGMENTED/s' + str(segment_number)+'-'+ str(s)+str(connectivity)+str(k)+'c'+str(color_pockets) + fname
         return segments_slic_r, segmented_img_path
 

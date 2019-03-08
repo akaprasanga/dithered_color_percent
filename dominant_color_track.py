@@ -3,13 +3,19 @@ from sklearn.cluster import KMeans
 from collections import Counter
 import numpy as np
 import os
+from PIL import Image
+
+def convert_to_pillow_format(img):
+    return Image.fromarray(img.astype('uint8'), 'RGB')
+
+
 
 def get_dominant_color(image_path, k=5):
 
     # print(image_path)
     image = cv2.imread(image_path)
 
-
+    image_copy = image.copy()
     original = image.copy()
     # reshape the image to be a list of pixels
     image = image.reshape((image.shape[0] * image.shape[1], 3))
@@ -49,14 +55,20 @@ def get_dominant_color(image_path, k=5):
     name = name[len(name)-1]
     if not os.path.exists('A_REDUCE_COLOR'):
         os.makedirs('A_REDUCE_COLOR')
+
+    pil_name = 'A_REDUCE_COLOR/P' + name
     name = 'A_REDUCE_COLOR/' + name
     cv2.imwrite(name, original)
     dir_path = os.getcwd()
     dir_path = dir_path.replace('\\','/')
     full_path = dir_path + '/' + name
     # print(len(mean_color))
-    return full_path, len(mean_color)
+    original_rgb = cv2.cvtColor(image_copy,cv2.COLOR_BGR2RGB)
+    pil_original = convert_to_pillow_format(original_rgb)
+    pil_original = pil_original.convert('P', palette=Image.ADAPTIVE,colors = k)
+    pil_original.save(pil_name)
+    return full_path, len(mean_color), original
 
 
 # image = cv2.imread('s100-1False3c3c-15Wizcraft 12 colors and 10 ratio.jpg')
-# color = get_dominant_color('s100-1False3c3c-15Wizcraft 12 colors and 10 ratio.jpg', k=5)
+# color = get_dominant_color('Wizcraft 12 colors and 10 ratio.png', k=5)

@@ -5,11 +5,8 @@ import time
 from PIL import Image
 import quantize
 import os
-import hitherdither
 import dominant_color_track as cluster
-import PIL
-from os import walk
-import random
+import traceback
 
 seg = Segment()
 # area = 0
@@ -25,11 +22,14 @@ def dither(filename, number_of_color, dim_change_flag, dim):
     #     img = resize_img_to_dim(img,dim)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = Image.fromarray(img)
-    # img = Image.open(filename).convert('RGB')
-    palette = hitherdither.palette.Palette.create_by_median_cut(img, n=number_of_color)
-    img_dithered = hitherdither.ordered.bayer.bayer_dithering(
-        img, palette, 10, order=2)
-    print("dithered Color =", len(img_dithered.getcolors()))
+
+    img_dithered = img.convert('P', palette=Image.ADAPTIVE, dither=Image.FLOYDSTEINBERG,colors = number_of_color)
+
+
+    # palette = hitherdither.palette.Palette.create_by_median_cut(img, n=number_of_color)
+    # img_dithered = hitherdither.ordered.bayer.bayer_dithering(
+    #     img, palette, 10, order=2)
+    # print("dithered Color =", len(img_dithered.getcolors()))
     name = filename.split('/')
     name = name[len(name) - 1]
     name = 'c-'+str(number_of_color)+name
@@ -63,8 +63,10 @@ def get_cdn_in_segment(img):
     distribution_dict = {}
     image = Image.fromarray(img.astype('uint8'), 'RGB')
     colors = image.getcolors()
-    if colors == None:
-        cv2.imwrite('Error/'+str(random.randint(1,10000))+'.jpg', img)
+    # if colors == None:
+    #     image = image.convert('P', palette=Image.ADAPTIVE, colors=16)
+    #     colors = image.getcolors()
+        # cv2.imwrite('Error/'+str(random.randint(1,10000))+'.jpg', img)
 
     black_pixels_number, rgb_value = colors[len(colors)-1]
     # print(colors)
@@ -170,14 +172,22 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
 
     original_without_dither = cv2.imread(filename)
 
-
     if resize_flag == True:
         non_resized = cv2.imread(filename)
         upscaled = scale_up_image(non_resized,resize_factor)
+        upscaled_rgb = cv2.cvtColor(upscaled, cv2.COLOR_BGR2RGB)
+        upscaled_pil = convert_to_pillow_format(upscaled_rgb)
+        c = upscaled_pil.getcolors()
+        # print(c)
+        if c == None:
+            # print('came to reduce colors')
+            upscaled_pil = upscaled_pil.convert('P', palette = Image.ADAPTIVE, colors=20)
+
         if not os.path.exists('A_UPSCALED_INPUT'):
             os.makedirs('A_UPSCALED_INPUT')
         path_after_upscaled = dir_path + '/' + 'A_UPSCALED_INPUT/' + actual_name + '.png'
-        cv2.imwrite(path_after_upscaled, upscaled)
+        upscaled_pil.save(path_after_upscaled)
+        # cv2.imwrite(path_after_upscaled, upscaled)
         filename = path_after_upscaled
 
     # if dim_change_flag == True:
@@ -194,12 +204,14 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
             path = dither(p, dither_color, dim_change_flag, dim)
             filename = path
         except:
+            traceback.print_exc()
             print('dither failed')
+            filename = path_after_upscaled
+            dither_flag = False
     segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim)
 
     # print('fname before segval =', filename)
     original = cv2.imread(filename)
-
 
     original_r = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
 
@@ -220,39 +232,38 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
     if resize_flag == True:
         # color_replaced_r = scale_down_image(color_replaced_r, resize_factor)
         segmented_image = scale_down_image(segmented_image, resize_factor)
-        dithered_img = scale_down_image(dithered_img, resize_factor)
+        if dither_flag == True:
+            dithered_img = scale_down_image(dithered_img, resize_factor)
 
 
-
-    try:
-        print('Shapes ==',original_without_dither.shape,segmented_image.shape, dithered_img.shape, color_replaced_r.shape)
-        joined_img = np.hstack((original_without_dither,dithered_img,color_replaced_r))
-        if not os.path.exists('A_STICHED_OUTPUT'):
-            os.makedirs('A_STICHED_OUTPUT')
-        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
-
-
-    except:
-        joined_img = np.hstack((original_without_dither,segmented_image,color_replaced_r))
-        if not os.path.exists('A_STICHED_OUTPUT'):
-            os.makedirs('A_STICHED_OUTPUT')
-        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img)
     dir_path = os.getcwd()
     dir_path = dir_path.replace('\\','/')
     output_img_path = dir_path + '/' + output_img_path
     dithered_img_path = dir_path + '/' + dithered_img_path
     segmented_img_path = dir_path + '/' + segmented_img_path
-    reduced_color_path, cluster_number = cluster.get_dominant_color(output_img_path,reduce_color_number)
-    print("Time Elapsed = ", time.time()-start)
+    reduced_color_path, cluster_number,reduced_color_img = cluster.get_dominant_color(output_img_path,reduce_color_number)
+
+    try:
+        # print('Shapes ==',original_without_dither.shape,segmented_image.shape, dithered_img.shape, color_replaced_r.shape)
+        joined_img = np.hstack((original_without_dither,color_replaced_r,reduced_color_img))
+        if not os.path.exists('A_STICHED_OUTPUT'):
+            os.makedirs('A_STICHED_OUTPUT')
+        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
+    except:
+        joined_img = np.hstack((original_without_dither,color_replaced_r,reduced_color_img))
+        if not os.path.exists('A_STICHED_OUTPUT'):
+            os.makedirs('A_STICHED_OUTPUT')
+        cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img)
+    # print("Time Elapsed = ", time.time()-start)
 
     if dither_flag == True:
-        return output_img_path, reduced_color_path, str(time.time()-start)
+        return output_img_path, reduced_color_path, str(time.time()-start),cluster_number
     else:
-        return output_img_path, reduced_color_path, str(time.time()-start)
+        return output_img_path, reduced_color_path, str(time.time()-start),cluster_number
 
 
-
-# a,b,c = main('E:/New folder/Horizontal/001109_0552_0122_nlhs.jpg',True, 3,100,False,3,2,3, False,3,6, True, (450,600))
+# filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim
+# a,b,c = main('E:/Work/dithered_color_percent/images/Miami-Heat.png',False, 8,100,False,3,2,4, True,3,6, True, (900,1200))
 
 # f = []
 # for (dirpath, dirnames, filenames) in walk('test'):

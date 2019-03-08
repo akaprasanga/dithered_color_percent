@@ -1,5 +1,6 @@
 from PIL import Image
 
-img = Image.open('IMG_20180612_0002_Page_2.png')
-print(img.getcolors())
-img.save('trial.png')
+img = Image.open('Wizcraft 12 colors and 10 ratio.processed.png')
+
+upscaled_pil = img.convert('P', palette=Image.ADAPTIVE, colors=20)
+upscaled_pil.save('test.png')

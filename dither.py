@@ -20,7 +20,7 @@ import traceback
 
 
 class WidgetGallery(QDialog):
-    add_post = pyqtSignal(str, str, str, str)
+    add_post = pyqtSignal(str, str, str, str, str)
     reduce_color_Signal = pyqtSignal(str, str)
     sleep_Signal = pyqtSignal()
 
@@ -90,7 +90,7 @@ class WidgetGallery(QDialog):
 
     def itemselectionChanged(self):
         items = self.ImageShowerList.selectedItems()
-        print(str(items[0].text()))
+        # print(str(items[0].text()))
 
     def itemDoubleClicked(self, column_no):
         # print(column_no)
@@ -241,23 +241,23 @@ class WidgetGallery(QDialog):
         self.another_process.start()
         self.another_process.add_post.connect(self.tread_done)
 
-    @QtCore.pyqtSlot(str,str,str,str)
-    def tread_done(self,processing_img_path, output_path, dither_path, time):
+    @QtCore.pyqtSlot(str,str,str,str, str)
+    def tread_done(self,processing_img_path, output_path, dither_path, time, k_number):
 
         self.enable_vitals()
         if output_path == 'e':
             print('ERROR')
             QMessageBox.about(self, "Alert",
                               "Something Went Wrong with Image="+str(processing_img_path))
-            print('Ok Clicked')
+            # print('Ok Clicked')
             return
         else:
             # print(output_path, dither_path, time)
             self.time.setText('Time Taken to Process Image =' + time)
             self.current_output_path = output_path
-            self.update_img_after_thread(processing_img_path,output_path, dither_path)
+            self.update_img_after_thread(processing_img_path,output_path, dither_path, k_number)
 
-    def update_img_after_thread(self,processing_img_path,output_path, dithered_path):
+    def update_img_after_thread(self,processing_img_path,output_path, dithered_path, k_number):
         main_img = QPixmap(processing_img_path)
         pixmap_output = QPixmap(output_path)
         pixmap_reduced = QPixmap(dithered_path)
@@ -270,6 +270,9 @@ class WidgetGallery(QDialog):
         self.img_label.setPixmap(mainsmaller_pixmap)
         self.segmented_img_label.setPixmap(outputsmaller_pixmap)
         self.final_image_label.setPixmap(reducedsmaller_pixmap)
+        self.reduced_number_of_color.setText('Number Of Colors in Image = ' + str(k_number))
+
+
 
     @QtCore.pyqtSlot(str, str)
     def kmeans_done(self,path, number):
@@ -337,14 +340,14 @@ class WidgetGallery(QDialog):
         self.ditherRadioButton.setChecked(True)
 
         self.resizeButton = QCheckBox("Upscale and then Process")
-        self.resizeButton.setChecked(False)
+        self.resizeButton.setChecked(True)
         self.resizeButton.clicked.connect(self.disable_resize_spin_box)
 
         self.ditherRadioButton.clicked.connect(self.enable_dither_color)
         self.ditherColor = QSpinBox()
         self.ditherColor.setMaximum(15)
         self.ditherColor.setMinimum(2)
-        self.ditherColor.setValue(8)
+        self.ditherColor.setValue(6)
         # self.ditherColor.setEnabled(False)
 
         self.resizefactor = QSpinBox()
@@ -358,10 +361,10 @@ class WidgetGallery(QDialog):
 
         self.segments_number = QSpinBox()
         self.segments_number.setMaximum(10000)
-        self.segments_number.setValue(100)
+        self.segments_number.setValue(250)
 
         self.compactness = QSpinBox()
-        self.compactness.setValue(3)
+        self.compactness.setValue(5)
         self.compactness.setMinimum(1)
 
         self.sigma = QSpinBox()
@@ -374,8 +377,8 @@ class WidgetGallery(QDialog):
 
         self.kmeans_color_slider = QSpinBox()
         self.kmeans_color_slider.setMaximum(30)
-        self.kmeans_color_slider.setMinimum(4)
-        self.kmeans_color_slider.setValue(8)
+        self.kmeans_color_slider.setMinimum(2)
+        self.kmeans_color_slider.setValue(10)
         self.kmeans_color_slider.valueChanged.connect(self.value_change)
 
         dither_color_label = QLabel("Number of Colors to be Used in Dithering")
@@ -488,7 +491,7 @@ class WidgetGallery(QDialog):
 
 
 class WorkerThread(QThread):
-    add_post = pyqtSignal(str,str,str,str)
+    add_post = pyqtSignal(str,str,str,str,str)
 
     def __init__(self, parent=None):
         super(WorkerThread, self).__init__(parent)
@@ -513,26 +516,45 @@ class WorkerThread(QThread):
         if self.batch_process_flag == True:
             for each in self.list_of_files:
                 try:
-                    output_path, dither_path, time = dither_algorithm.main(each, self.dither_flag,
+                    output_path, dither_path, time, k_number = dither_algorithm.main(each, self.dither_flag,
                                                                            self.dither_color, self.number_of_segments,
                                                                            self.connectivity, self.compactness_value,
                                                                            self.sigma_value, self.color_pocket_number, self.resize_flag,
                                                                            self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim)
-                    self.add_post.emit(each,output_path, dither_path, time)
-                except Exception:
+                    self.add_post.emit(each,output_path, dither_path, time, str(k_number))
+                except Exception as e:
                     traceback.print_exc()
-                    self.add_post.emit(str(each), 'e', 'e', 'e')
+                    print('error and skipped image ==', each)
+                    actual_name = os.path.splitext(each)[0]
+                    actual_name = actual_name.split('/')
+                    actual_name = actual_name[len(actual_name) - 1]
+                    with open('ErrorLog.txt', 'a') as file:
+                        file.writelines(actual_name)
+                        file.writelines(str(e))
+                        file.writelines(traceback.format_exc())
+                    if self.list_of_files[-1] == each:
+                        self.add_post.emit(str(each), 'e', 'e', 'e', 'e')
+
+
+                    # self.add_post.emit(str(each), 'e', 'e', 'e')
         else:
             # print(self.change_dim_flag, self.dim)
             try:
-                output_path, dither_path, time = dither_algorithm.main(self.current_path, self.dither_flag, self.dither_color,
+                output_path, dither_path, time, k_number = dither_algorithm.main(self.current_path, self.dither_flag, self.dither_color,
                                                                        self.number_of_segments,self.connectivity, self.compactness_value,
                                                                        self.sigma_value, self.color_pocket_number,
                                                                        self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim)
-                self.add_post.emit(self.current_path,output_path, dither_path, time)
-            except Exception:
+                self.add_post.emit(self.current_path,output_path, dither_path, time, str(k_number))
+            except Exception as e:
                 traceback.print_exc()
-                self.add_post.emit(str(self.current_path), 'e', 'e', 'e')
+                actual_name = os.path.splitext(self.current_path)[0]
+                actual_name = actual_name.split('/')
+                actual_name = actual_name[len(actual_name) - 1]
+                with open('ErrorLog.txt', 'a') as file:
+                    file.writelines(actual_name)
+                    file.writelines(str(e))
+                    file.writelines(traceback.format_exc())
+                self.add_post.emit(str(self.current_path), 'e', 'e', 'e', 'e')
 
 
 class Kmeans(QThread):
@@ -541,14 +563,15 @@ class Kmeans(QThread):
     def __init__(self, parent=None):
         super(Kmeans, self).__init__(parent)
         self.final_img_path = ''
-        self.number_of_cluster = 8
+        self.number_of_cluster = 10
 
     @QtCore.pyqtSlot()
     def run(self):
         try:
-            path, cluster_used = clustering.get_dominant_color(self.final_img_path, self.number_of_cluster)
+            path, cluster_used, img_return = clustering.get_dominant_color(self.final_img_path, self.number_of_cluster)
             self.reduce_color_Signal.emit(path, str(cluster_used))
         except:
+            # traceback.print_exc()
             self.reduce_color_Signal.emit('e', 'e')
 
 
