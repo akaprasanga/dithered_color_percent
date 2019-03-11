@@ -276,6 +276,7 @@ class WidgetGallery(QDialog):
 
     @QtCore.pyqtSlot(str, str)
     def kmeans_done(self,path, number):
+        self.clustering_thread.terminate()
         print('Kmeans finised==', path)
         w = self.topRightGroupBox.width()
         h = self.topRightGroupBox.height()

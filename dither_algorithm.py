@@ -7,6 +7,7 @@ import quantize
 import os
 import dominant_color_track as cluster
 import traceback
+import hitherdither
 
 seg = Segment()
 # area = 0
@@ -23,12 +24,12 @@ def dither(filename, number_of_color, dim_change_flag, dim):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = Image.fromarray(img)
 
-    img_dithered = img.convert('P', palette=Image.ADAPTIVE, dither=Image.FLOYDSTEINBERG,colors = number_of_color)
+    # img_dithered = img.convert('P', palette=Image.ADAPTIVE, dither=Image.FLOYDSTEINBERG,colors = number_of_color)
 
 
-    # palette = hitherdither.palette.Palette.create_by_median_cut(img, n=number_of_color)
-    # img_dithered = hitherdither.ordered.bayer.bayer_dithering(
-    #     img, palette, 10, order=2)
+    palette = hitherdither.palette.Palette.create_by_median_cut(img, n=number_of_color)
+    img_dithered = hitherdither.ordered.bayer.bayer_dithering(
+        img, palette, 10, order=2)
     # print("dithered Color =", len(img_dithered.getcolors()))
     name = filename.split('/')
     name = name[len(name) - 1]
@@ -36,10 +37,10 @@ def dither(filename, number_of_color, dim_change_flag, dim):
 
     if not os.path.exists('A_DITHERED'):
         os.makedirs('A_DITHERED')
-    os_path = os.path.dirname(os.path.abspath(__file__))
-    os_path =os_path.replace(os.sep, '/')
+    dir_path = os.getcwd()
+    os_path = dir_path.replace('\\', '/')
     path = os_path + '/A_DITHERED/' + name
-    # print(path)
+    # print('Path returned from dither::',path)
     # print(f_name,'\n', file_extension)
 
     img_dithered.save(path)
@@ -150,6 +151,14 @@ def count_proportion(segments, image, color_pockets):
 
     return final1
 
+def check_and_reduce_color(filename):
+    ready_to_process = Image.open(filename).convert('RGB')
+    color = ready_to_process.getcolors()
+    if color == None:
+        # print('Large number of colors in Image so Reducing the color to 24')
+        reduced_img, cluster_number = cluster.mini_batch_kmeans(filename, 24)
+        cv2.imwrite(filename,reduced_img)
+
 
 def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim):
     print('Processing started ==', filename)
@@ -177,11 +186,11 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
         upscaled = scale_up_image(non_resized,resize_factor)
         upscaled_rgb = cv2.cvtColor(upscaled, cv2.COLOR_BGR2RGB)
         upscaled_pil = convert_to_pillow_format(upscaled_rgb)
-        c = upscaled_pil.getcolors()
+        # c = upscaled_pil.getcolors()
         # print(c)
-        if c == None:
-            # print('came to reduce colors')
-            upscaled_pil = upscaled_pil.convert('P', palette = Image.ADAPTIVE, colors=20)
+        # if c == None:
+        #     # print('came to reduce colors')
+        #     upscaled_pil = upscaled_pil.convert('P', palette = Image.ADAPTIVE, colors=20)
 
         if not os.path.exists('A_UPSCALED_INPUT'):
             os.makedirs('A_UPSCALED_INPUT')
@@ -203,11 +212,14 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
         try:
             path = dither(p, dither_color, dim_change_flag, dim)
             filename = path
-        except:
-            traceback.print_exc()
-            print('dither failed')
+        except ValueError:
+            # traceback.print_exc()
+            print('Dither failed due to less number of Colors in Image than defined color')
             filename = path_after_upscaled
             dither_flag = False
+
+    ready_to_process_img = Image.open(filename).convert('RGB')
+    check_and_reduce_color(filename)
     segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim)
 
     # print('fname before segval =', filename)
