@@ -1,9 +1,7 @@
 
 from collections import Counter
-from PIL import Image
 import hitherdither
-import cv2
-
+import time
 def quantize_into_pockets(color_dict, pocket_number=3):
     keys_list = []
     values_list = []
@@ -34,7 +32,6 @@ def quantize_into_pockets(color_dict, pocket_number=3):
     for k,v in z.items():
         v = v * pockets_size
         final_dict[k] = v
-    # print(final_dict)
     return final_dict
 
 

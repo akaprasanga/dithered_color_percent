@@ -10,6 +10,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+*.dll
 build/
 develop-eggs/
 dist/

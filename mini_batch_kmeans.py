@@ -4,7 +4,7 @@ import argparse
 import cv2
 
 filename = 'images/Miami-Heat.png'
-k = 10
+k = 5
 image = cv2.imread(filename)
 (h, w) = image.shape[:2]
 
@@ -24,7 +24,7 @@ image = image.reshape((image.shape[0] * image.shape[1], 3))
 clt = MiniBatchKMeans(n_clusters=k)
 labels = clt.fit_predict(image)
 quant = clt.cluster_centers_.astype("uint8")[labels]
-
+print(clt.cluster_centers_.astype("uint8"))
 # reshape the feature vectors to images
 quant = quant.reshape((h, w, 3))
 image = image.reshape((h, w, 3))

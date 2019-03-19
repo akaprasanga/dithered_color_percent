@@ -1,0 +1,165 @@
+floralall the input arrays must have same number of dimensionsTraceback (most recent call last):
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 228, in main
+    joined_img = np.hstack((original_without_dither,color_replaced_r,reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input arrays must have same number of dimensions
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 233, in main
+    joined_img = np.hstack((original_without_dither,color_replaced_r,reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input arrays must have same number of dimensions
+AscenureFailed in nopython mode pipeline (step: nopython frontend)
+Unsupported op-code encountered: build_map(items=[], size=0)
+
+File "quantize.py", line 23:
+def quantize_into_pockets(color_dict, pocket_number=3):
+    <source elided>
+        bucket.append(sorted_x[0][0])
+        empty_list = {}
+        ^
+
+Unsupported functionality was found in the code Numba was trying to compile.
+
+If this functionality is important to you please file a feature request at:
+https://github.com/numba/numba/issues/new
+Traceback (most recent call last):
+  File "Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 196, in main
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numba\dispatcher.py", line 353, in _compile_for_args
+    error_rewrite(e, 'unsupported_error')
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numba\dispatcher.py", line 317, in error_rewrite
+    reraise(type(e), e, None)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numba\six.py", line 658, in reraise
+    raise value.with_traceback(tb)
+numba.errors.UnsupportedError: Failed in nopython mode pipeline (step: nopython frontend)
+Unsupported op-code encountered: build_map(items=[], size=0)
+
+File "quantize.py", line 23:
+def quantize_into_pockets(color_dict, pocket_number=3):
+    <source elided>
+        bucket.append(sorted_x[0][0])
+        empty_list = {}
+        ^
+
+Unsupported functionality was found in the code Numba was trying to compile.
+
+If this functionality is important to you please file a feature request at:
+https://github.com/numba/numba/issues/new
+
+Ascenure.processednot enough values to unpack (expected 3, got 0)Traceback (most recent call last):
+  File "Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 196, in main
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
+  File "E:\Work\dithered_color_percent\quantize.py", line 7, in quantize_into_pockets
+    keys_list, values_list, bucket = []
+ValueError: not enough values to unpack (expected 3, got 0)
+Ascenurenot enough values to unpack (expected 2, got 0)Traceback (most recent call last):
+  File "Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 196, in main
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
+  File "E:\Work\dithered_color_percent\quantize.py", line 7, in quantize_into_pockets
+    keys_list = [], values_list = [], bucket = []
+ValueError: not enough values to unpack (expected 2, got 0)
+Ascenuremodule 'pydip' has no attribute 'MeasurementTool'Traceback (most recent call last):
+  File "Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 192, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 62, in slic_superpixel
+    msr = dip.MeasurementTool.Measure(segments, image_r, ['Mean'])
+AttributeError: module 'pydip' has no attribute 'MeasurementTool'
+floralcould not broadcast input array from shape (251) into shape (1200,900)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 192, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 63, in slic_superpixel
+    out[:, :, ii] = regions
+ValueError: could not broadcast input array from shape (251) into shape (1200,900)
+Ascenure'list' object has no attribute 'shape'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 192, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 63, in slic_superpixel
+    print(regions.shape)
+AttributeError: 'list' object has no attribute 'shape'
+Ascenuretype object '_io.StringIO' has no attribute 'StringIO'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 211, in main
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
+AttributeError: type object '_io.StringIO' has no attribute 'StringIO'
+Ascenuretype object '_io.StringIO' has no attribute 'StringIO'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 212, in main
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
+AttributeError: type object '_io.StringIO' has no attribute 'StringIO'
+Ascenuretype object '_io.StringIO' has no attribute 'StringIO'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 212, in main
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
+AttributeError: type object '_io.StringIO' has no attribute 'StringIO'
+Threshold Revelimatype object '_io.StringIO' has no attribute 'StringIO'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 212, in main
+    color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
+AttributeError: type object '_io.StringIO' has no attribute 'StringIO'
+AscenureOpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\color.cpp:181: error: (-215:Assertion failed) !_src.empty() in function 'cv::cvtColor'
+Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 215, in main
+    color_replaced_r = cv2.cvtColor(color_replaced_r, cv2.COLOR_BGR2RGB)
+cv2.error: OpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\color.cpp:181: error: (-215:Assertion failed) !_src.empty() in function 'cv::cvtColor'
+
+ditheredOpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\color.cpp:181: error: (-215:Assertion failed) !_src.empty() in function 'cv::cvtColor'
+Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 215, in main
+    color_replaced_r = cv2.cvtColor(color_replaced_r, cv2.COLOR_BGR2RGB)
+cv2.error: OpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\color.cpp:181: error: (-215:Assertion failed) !_src.empty() in function 'cv::cvtColor'
+
+floralOpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\color.cpp:181: error: (-215:Assertion failed) !_src.empty() in function 'cv::cvtColor'
+Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r = cv2.cvtColor(color_replaced_r, cv2.COLOR_BGR2RGB)
+cv2.error: OpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\color.cpp:181: error: (-215:Assertion failed) !_src.empty() in function 'cv::cvtColor'
+
+Ascenure.processedCould not load file or assembly 'ImageProcessingCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies. The system cannot find the file specified.
+   at Utilities.ImageProcessing.Dithering(String savePath, String imgPath, Int32 numColors)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 574, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 197, in main
+    path = dither(p, dither_color, dir_path)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 25, in dither
+    saving_path = dither_from_dll.dither_image(filename, number_of_color, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 18, in dither_image
+    obj.Dithering(saving_path, filename, number)
+System.IO.FileNotFoundException: Could not load file or assembly 'ImageProcessingCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies. The system cannot find the file specified.
+   at Utilities.ImageProcessing.Dithering(String savePath, String imgPath, Int32 numColors)
+IMG_20180612_0002_Page_4dither_image() takes 3 positional arguments but 4 were givenTraceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 197, in main
+    path = dither(p, dither_color, dir_path)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 25, in dither
+    saving_path = dllFunctions.dither_image(filename, number_of_color, dir_path)
+TypeError: dither_image() takes 3 positional arguments but 4 were given

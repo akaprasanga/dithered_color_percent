@@ -1,22 +1,16 @@
-#!/usr/bin/env python
-
 from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QDateTime, Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import (QApplication, QCheckBox,QFileDialog, QComboBox, QDateTimeEdit,QListWidget,
-        QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-        QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,QGraphicsView,
-        QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,QGraphicsScene,
-        QVBoxLayout, QWidget, QMessageBox)
 from PyQt5.QtWidgets import *
 import color_percent
-import cv2
 import os
 import time
 import dither_algorithm
-import dominant_color_track as clustering
+from dither_from_dll import FunctionsFromDLL
 import traceback
+import glob
+import shutil
 
 
 class WidgetGallery(QDialog):
@@ -41,6 +35,7 @@ class WidgetGallery(QDialog):
         self.createTopRightGroupBox()
         self.createBottomLeftTabWidget()
         self.createBottomRightGroupBox()
+        self.thread_signal_connect()
 
         topLayout = QHBoxLayout()
 
@@ -58,6 +53,7 @@ class WidgetGallery(QDialog):
         self.list_of_files = []
         self.img_to_process = ''
         self.current_output_path = ''
+
         self.setWindowTitle("Dithering")
         self.changeStyle('Fusion')
 
@@ -72,25 +68,28 @@ class WidgetGallery(QDialog):
             print('Atrribute Error Handled')
             return
         self.disable_vitals()
-
+        # print(self.list_of_files)
         new_img_path = self.list_of_files[location]
         self.another_process.current_path = new_img_path
         print(new_img_path, location)
-        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,change_dim_flag,dim = self.get_status()
-        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,change_dim_flag,dim)
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,change_dim_flag,dim, grayscale_flag = self.get_status()
+        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,change_dim_flag,dim,grayscale_flag)
 
         self.another_process.start()
-        # self.disable_vitals()
-
-        self.another_process.add_post.connect(self.tread_done)
-
         self.img_to_process = new_img_path
         self.display_image(new_img_path)
-        # self.process_image()
 
     def itemselectionChanged(self):
         items = self.ImageShowerList.selectedItems()
         # print(str(items[0].text()))
+
+    def thread_signal_connect(self):
+        self.clustering_thread.reduce_color_Signal.connect(self.kmeans_done)
+        self.another_process.add_post.connect(self.tread_done)
+        # self.another_process.add_post.connect(self.tread_done)
+        # self.another_process.add_post.connect(self.tread_done)
+
+
 
     def itemDoubleClicked(self, column_no):
         # print(column_no)
@@ -100,22 +99,36 @@ class WidgetGallery(QDialog):
         # location = int(item.text())
         new_img_path = self.img_to_process
         self.another_process.current_path = new_img_path
-        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim = self.get_status()
-        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim)
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag = self.get_status()
+        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag)
 
         self.another_process.start()
-        # self.disable_vitals()
+        # self.disable_vitals()pyi-makespec --onefile
 
-        self.another_process.add_post.connect(self.tread_done)
 
         self.img_to_process = new_img_path
         self.display_image(new_img_path)
 
+    def list_files_inside_folder(self, path_to_folder):
+        # path_in_glob_format = path_to_folder + '/*' + '.png'
+        list_of_files = []
+        files = []
+        for ext in ('*.gif', '*.png', '*.jpg', '*.bmp', '*JPG', '*JPEG'):
+            files.extend(glob.glob(os.path.join(path_to_folder, ext)))
+
+        for each in files:
+            each = each.replace('\\', '/')
+            list_of_files.append(each)
+
+        return list_of_files
+
     def open(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
-                                                "All Files (*.*);;PNG Files (*.png);;JPG Files (*.jpg)", options=options)
+        # options = QFileDialog.Options()
+        # options |= QFileDialog.DontUseNativeDialog
+        # files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
+        #                                         "All Files (*.*);;PNG Files (*.png);;JPG Files (*.jpg)", options=options)
+        folder_name = QFileDialog.getExistingDirectory(self, "Select Directory")
+        files = self.list_files_inside_folder(folder_name)
         if files:
             self.list_of_files.clear()
             self.list_of_files = files
@@ -169,11 +182,14 @@ class WidgetGallery(QDialog):
             w = 0
             h = 0
             dim = tuple((w,h))
+        if self.grayscalebutton.isChecked():
+            grayscale_flag = True
+        else:
+            grayscale_flag = False
 
+        return dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor, reduce_color_number,change_dim_flag,dim, grayscale_flag
 
-        return dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor, reduce_color_number,change_dim_flag,dim
-
-    def set_status_to_thread(self,dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor, reduce_color_number,change_dim_flag,dim):
+    def set_status_to_thread(self,dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor, reduce_color_number,change_dim_flag,dim, grayscale_flag):
         self.another_process.dither_flag = dither_flag
         self.another_process.dither_color = dither_color
         self.another_process.number_of_segments = number_of_segments
@@ -186,6 +202,7 @@ class WidgetGallery(QDialog):
         self.another_process.reduce_color_number = reduce_color_number
         self.another_process.change_dim_flag = change_dim_flag
         self.another_process.dim = dim
+        self.another_process.grayscale_flag = grayscale_flag
 
     def disable_vitals(self):
         # self.processPushButton.setDisabled(True)
@@ -232,14 +249,13 @@ class WidgetGallery(QDialog):
 
     def process_all_images(self):
         self.disable_vitals()
-        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim = self.get_status()
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag = self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value,
-                                  color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim)
+                                  color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag)
 
         self.another_process.batch_process_flag = True
         self.another_process.list_of_files = self.list_of_files
         self.another_process.start()
-        self.another_process.add_post.connect(self.tread_done)
 
     @QtCore.pyqtSlot(str,str,str,str, str)
     def tread_done(self,processing_img_path, output_path, dither_path, time, k_number):
@@ -272,8 +288,6 @@ class WidgetGallery(QDialog):
         self.final_image_label.setPixmap(reducedsmaller_pixmap)
         self.reduced_number_of_color.setText('Number Of Colors in Image = ' + str(k_number))
 
-
-
     @QtCore.pyqtSlot(str, str)
     def kmeans_done(self,path, number):
         self.clustering_thread.terminate()
@@ -289,7 +303,6 @@ class WidgetGallery(QDialog):
         self.clustering_thread.final_img_path = self.current_output_path
         self.clustering_thread.number_of_cluster = self.kmeans_color_slider.value()
         self.clustering_thread.start()
-        self.clustering_thread.reduce_color_Signal.connect(self.kmeans_done)
 
     def createImageShower(self):
         self.ImageShower = QGroupBox("Loaded Images")
@@ -331,17 +344,26 @@ class WidgetGallery(QDialog):
             self.width_input.setEnabled(False)
             self.height_input.setEnabled(False)
 
+    def delete_folders(self):
+        output_folders = ['A_900X1200', 'A_DITHERED','A_Grayscaled','A_OUTPUT', 'A_REDUCE_COLOR','A_SEGMENTED', 'A_STICHED_OUTPUT','A_UPSCALED_INPUT']
+        for each in output_folders:
+            shutil.rmtree(each, ignore_errors=True)
+
+
     def createTopLeftGroupBox(self):
         self.topLeftGroupBox = QGroupBox("Parameters")
 
-        self.defaultPushButton = QPushButton("Choose Images")
+        self.defaultPushButton = QPushButton("Choose Folder")
         self.defaultPushButton.clicked.connect(self.open)
+
+        self.grayscalebutton = QCheckBox("Process in GrayScale")
+        self.grayscalebutton.setChecked(False)
 
         self.ditherRadioButton = QRadioButton("Dither and then Process")
         self.ditherRadioButton.setChecked(True)
 
         self.resizeButton = QCheckBox("Upscale and then Process")
-        self.resizeButton.setChecked(True)
+        self.resizeButton.setChecked(False)
         self.resizeButton.clicked.connect(self.disable_resize_spin_box)
 
         self.ditherRadioButton.clicked.connect(self.enable_dither_color)
@@ -381,6 +403,9 @@ class WidgetGallery(QDialog):
         self.kmeans_color_slider.setMinimum(2)
         self.kmeans_color_slider.setValue(10)
         self.kmeans_color_slider.valueChanged.connect(self.value_change)
+
+        delete_folder_push_button = QPushButton('Delete All Output Folders')
+        delete_folder_push_button.clicked.connect(self.delete_folders)
 
         dither_color_label = QLabel("Number of Colors to be Used in Dithering")
         resize_img_label = QLabel("Upscaling Factor")
@@ -423,6 +448,7 @@ class WidgetGallery(QDialog):
         layout = QVBoxLayout()
 
         layout.addWidget(self.defaultPushButton)
+        layout.addWidget(self.grayscalebutton)
         layout.addWidget(self.ditherRadioButton)
         layout.addWidget(dither_color_label)
         layout.addWidget(self.ditherColor)
@@ -445,6 +471,7 @@ class WidgetGallery(QDialog):
 
         layout.addWidget(self.processPushButton)
         layout.addWidget(self.time)
+        layout.addWidget(delete_folder_push_button)
 
 
         # layout.addStretch(0)
@@ -511,6 +538,7 @@ class WorkerThread(QThread):
         self.reduce_color_number = 8
         self.change_dim_flag = False
         self.dim = (0,0)
+        self.grayscale_flag = False
 
     @QtCore.pyqtSlot()
     def run(self):
@@ -521,7 +549,7 @@ class WorkerThread(QThread):
                                                                            self.dither_color, self.number_of_segments,
                                                                            self.connectivity, self.compactness_value,
                                                                            self.sigma_value, self.color_pocket_number, self.resize_flag,
-                                                                           self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim)
+                                                                           self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
                     self.add_post.emit(each,output_path, dither_path, time, str(k_number))
                 except Exception as e:
                     traceback.print_exc()
@@ -544,7 +572,7 @@ class WorkerThread(QThread):
                 output_path, dither_path, time, k_number = dither_algorithm.main(self.current_path, self.dither_flag, self.dither_color,
                                                                        self.number_of_segments,self.connectivity, self.compactness_value,
                                                                        self.sigma_value, self.color_pocket_number,
-                                                                       self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim)
+                                                                       self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
                 self.add_post.emit(self.current_path,output_path, dither_path, time, str(k_number))
             except Exception as e:
                 traceback.print_exc()
@@ -569,8 +597,11 @@ class Kmeans(QThread):
     @QtCore.pyqtSlot()
     def run(self):
         try:
-            path, cluster_used, img_return = clustering.get_dominant_color(self.final_img_path, self.number_of_cluster)
-            self.reduce_color_Signal.emit(path, str(cluster_used))
+            dir_path = os.getcwd()
+            dir_path = dir_path.replace('\\', '/')
+            clustering = FunctionsFromDLL()
+            path = clustering.reduce_color(self.final_img_path, self.number_of_cluster, dir_path)
+            self.reduce_color_Signal.emit(path, str(self.number_of_cluster))
         except:
             # traceback.print_exc()
             self.reduce_color_Signal.emit('e', 'e')
