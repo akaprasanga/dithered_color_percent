@@ -11,7 +11,7 @@ from dither_from_dll import FunctionsFromDLL
 import traceback
 import glob
 import shutil
-
+from BlurAlgorithms import BlurFilters
 
 class WidgetGallery(QDialog):
     add_post = pyqtSignal(str, str, str, str, str)
@@ -20,6 +20,7 @@ class WidgetGallery(QDialog):
 
     def __init__(self, parent=None):
         super(WidgetGallery, self).__init__(parent)
+
 
         self.originalPalette = QApplication.palette()
         self.another_process = WorkerThread()
@@ -49,16 +50,23 @@ class WidgetGallery(QDialog):
         mainLayout.addWidget(self.bottomLeftTabWidget, 1, 3)
         mainLayout.addWidget(self.bottomRightGroupBox, 1, 4)
 
+
         self.setLayout(mainLayout)
         self.list_of_files = []
         self.img_to_process = ''
         self.current_output_path = ''
 
+        self.connect_signals()
         self.setWindowTitle("Dithering")
         self.changeStyle('Fusion')
 
     def changeStyle(self, styleName):
         QApplication.setStyle(QStyleFactory.create(styleName))
+
+    def connect_signals(self):
+        self.saturation_slider.valueChanged.connect(self.change_saturation)
+        self.motion_blur_slider.valueChanged.connect(self.motion_blur)
+        self.sharpen_slider.valueChanged.connect(self.sharpen_image)
 
     def itemClicked(self, item):
         self.another_process.batch_process_flag = False
@@ -89,7 +97,33 @@ class WidgetGallery(QDialog):
         # self.another_process.add_post.connect(self.tread_done)
         # self.another_process.add_post.connect(self.tread_done)
 
+    def change_saturation(self, filename):
+        blurFilters = BlurFilters()
+        slider_value = self.saturation_slider.value()
+        saturated_img = blurFilters.increase_saturation(self.img_to_process, 4*(slider_value/100))
+        self.display_main_image_from_array(saturated_img)
 
+    def display_main_image_from_array(self, img):
+        width = self.topRightGroupBox.width()
+        final_img = QPixmap(self.numpy_to_pixmap(img))
+        final_img = final_img.scaledToWidth(width - 50, mode=Qt.FastTransformation)
+        self.img_label.setPixmap(final_img)
+
+    def numpy_to_pixmap(self, img):
+        height, width, channel = img.shape
+        bytesPerLine = 3 * width
+        qImg = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        return qImg
+
+    def motion_blur(self):
+        blurFilters = BlurFilters()
+        img = blurFilters.motion_blur(self.img_to_process, self.motion_blur_slider.value())
+        self.display_main_image_from_array(img)
+
+    def sharpen_image(self):
+        blurFilter = BlurFilters()
+        img = blurFilter.sharpen_imge(self.img_to_process, self.sharpen_slider.value())
+        self.display_main_image_from_array(img)
 
     def itemDoubleClicked(self, column_no):
         # print(column_no)
@@ -210,8 +244,6 @@ class WidgetGallery(QDialog):
         self.topLeftGroupBox.setDisabled(True)
 
     def enable_vitals(self):
-        # self.processPushButton.setEnabled(True)
-        # self.defaultPushButton.setEnabled(True)
         self.topLeftGroupBox.setEnabled(True)
 
     def changePalette(self):
@@ -279,9 +311,13 @@ class WidgetGallery(QDialog):
         pixmap_reduced = QPixmap(dithered_path)
         w = self.topRightGroupBox.width()
         h = self.topRightGroupBox.height()
-        mainsmaller_pixmap = main_img.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
-        outputsmaller_pixmap = pixmap_output.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
-        reducedsmaller_pixmap = pixmap_reduced.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
+        mainsmaller_pixmap = main_img.scaledToWidth(w-20, Qt.FastTransformation)
+        outputsmaller_pixmap = pixmap_output.scaledToWidth(w-20, Qt.FastTransformation)
+        reducedsmaller_pixmap = pixmap_reduced.scaledToWidth(w-20, Qt.FastTransformation)
+
+        # mainsmaller_pixmap = main_img.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
+        # outputsmaller_pixmap = pixmap_output.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
+        # reducedsmaller_pixmap = pixmap_reduced.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
 
         self.img_label.setPixmap(mainsmaller_pixmap)
         self.segmented_img_label.setPixmap(outputsmaller_pixmap)
@@ -327,7 +363,7 @@ class WidgetGallery(QDialog):
         if self.timer_id != -1:
             self.killTimer(self.timer_id)
 
-        self.timer_id = self.startTimer(3000)
+        self.timer_id = self.startTimer(1500)
         # print('changed == ', self.kmeans_color_slider.value())
 
     def timerEvent(self, event):
@@ -349,10 +385,9 @@ class WidgetGallery(QDialog):
         for each in output_folders:
             shutil.rmtree(each, ignore_errors=True)
 
-
     def createTopLeftGroupBox(self):
         self.topLeftGroupBox = QGroupBox("Parameters")
-
+        bluring_groupbox = self.create_bluring_groupbox()
         self.defaultPushButton = QPushButton("Choose Folder")
         self.defaultPushButton.clicked.connect(self.open)
 
@@ -368,7 +403,7 @@ class WidgetGallery(QDialog):
 
         self.ditherRadioButton.clicked.connect(self.enable_dither_color)
         self.ditherColor = QSpinBox()
-        self.ditherColor.setMaximum(15)
+        self.ditherColor.setMaximum(20)
         self.ditherColor.setMinimum(2)
         self.ditherColor.setValue(6)
         # self.ditherColor.setEnabled(False)
@@ -452,6 +487,7 @@ class WidgetGallery(QDialog):
         layout.addWidget(self.ditherRadioButton)
         layout.addWidget(dither_color_label)
         layout.addWidget(self.ditherColor)
+        layout.addWidget(bluring_groupbox)
         layout.addLayout(hlayout)
         layout.addWidget(self.resizeButton)
         layout.addWidget(resize_img_label)
@@ -477,6 +513,36 @@ class WidgetGallery(QDialog):
         # layout.addStretch(0)
         self.topLeftGroupBox.setLayout(layout)
 
+    def create_bluring_groupbox(self):
+        group_box = QGroupBox('PreProcessing Tools')
+        grid_layout = QGridLayout()
+
+        saturation_label = QLabel('Sat. V')
+        self.saturation_slider = QSlider(Qt.Horizontal)
+        self.saturation_slider.setValue(25)
+
+        motion_blur_label = QLabel('Motion. B')
+        self.motion_blur_slider = QSlider(Qt.Horizontal)
+        self.motion_blur_slider.setMinimum(2)
+
+        sharpen_label = QLabel('Sharpen')
+        self.sharpen_slider = QSpinBox()
+        self.sharpen_slider.setMinimum(0)
+        self.sharpen_slider.setMaximum(3)
+        # self.sharpen_slider.setTickInterval(1)
+        # self.sharpen_slider.setSingleStep(1)
+
+
+        grid_layout.addWidget(saturation_label, 0, 0)
+        grid_layout.addWidget(self.saturation_slider, 0, 1)
+        grid_layout.addWidget(motion_blur_label, 1, 0)
+        grid_layout.addWidget(self.motion_blur_slider, 1, 1)
+        grid_layout.addWidget(sharpen_label, 2, 0)
+        grid_layout.addWidget(self.sharpen_slider, 2, 1)
+
+        group_box.setLayout(grid_layout)
+        return group_box
+
     def createTopRightGroupBox(self):
         self.topRightGroupBox = QGroupBox("Image To Process")
 
@@ -485,7 +551,7 @@ class WidgetGallery(QDialog):
         layout = QVBoxLayout()
 
         layout.addWidget(self.img_label)
-        layout.maximumSize()
+        # layout.maximumSize()
         layout.addStretch(1)
         # print(self.img_label.height(), self.img_label.width())
 
@@ -519,7 +585,7 @@ class WidgetGallery(QDialog):
 
 
 class WorkerThread(QThread):
-    add_post = pyqtSignal(str,str,str,str,str)
+    add_post = pyqtSignal(str, str, str, str, str)
 
     def __init__(self, parent=None):
         super(WorkerThread, self).__init__(parent)
@@ -622,8 +688,13 @@ class SleepThread(QThread):
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
+    screen = app.primaryScreen()
+    h = screen.size().height()
+    w = screen.size().width()
+
     gallery = WidgetGallery()
-    gallery.showMaximized()
+    # gallery.showMaximized()
+    gallery.setFixedSize(screen.size().width()-50, screen.size().height()-100)
     gallery.setWindowFlag(QtCore.Qt.WindowMinMaxButtonsHint)
     gallery.show()
     sys.exit(app.exec_()) 

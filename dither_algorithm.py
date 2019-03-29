@@ -3,23 +3,19 @@ import numpy as np
 from segmentation import Segment
 import time
 from PIL import Image
-import quantize
 import os
-import dominant_color_track as cluster
 from dither_from_dll import FunctionsFromDLL
-from numba import jit
-import cProfile, pstats
-from io import StringIO
-pr = cProfile.Profile()
+
 
 dllFunctions = FunctionsFromDLL()
 seg = Segment()
 # area = 0
 # area_r = 0
 
-def resize_img_to_dim(img,dim):
-    img = cv2.resize(img,dim)
+def resize_img_to_dim(img, dim):
+    img = cv2.resize(img, dim)
     return img
+
 
 def dither(filename, number_of_color, dir_path):
     saving_path = dllFunctions.dither_image(filename, number_of_color, dir_path)
@@ -48,10 +44,6 @@ def get_cdn_in_segment(img):
     distribution_dict = {}
     image = Image.fromarray(img.astype('uint8'), 'RGB')
     colors = image.getcolors()
-    # if colors == None:
-    #     image = image.convert('P', palette=Image.ADAPTIVE, colors=16)
-    #     colors = image.getcolors()
-        # cv2.imwrite('Error/'+str(random.randint(1,10000))+'.jpg', img)
 
     black_pixels_number, rgb_value = colors[len(colors)-1]
     # print(colors)
@@ -87,66 +79,67 @@ def get_max_value_from_dict(dictionary):
     max_value = max(values)
     return max_value
 
-@jit(parallel=True)
-def count_proportion(segments, image, color_pockets):
-    pr.enable()
 
-    orig = image
-    mask_r = np.zeros(image.shape[:2], dtype="uint8")
-    mask_g = np.zeros(image.shape[:2], dtype="uint8")
-    mask_b = np.zeros(image.shape[:2], dtype="uint8")
-    zeros = np.zeros(image.shape[:2], dtype="uint8")
-
-    start_color_time = time.time()
-    for (i, segVal) in enumerate(np.unique(segments)):
-        mask = zeros.copy()
-        mask[segments == segVal] = 255  # Five start code for replacing values
-
-        masked_segment = cv2.bitwise_and(orig, orig, mask=mask)
-        masked_segment = cv2.cvtColor(masked_segment, cv2.COLOR_BGR2RGB)
-        color_dist = get_cdn_in_segment(masked_segment)
-
-        cmy_color = color_dist
-        # cmy_color = quantize.rgb_to_cmy(color_dist)
-        q_color = quantize.quantize_into_pockets(cmy_color, pocket_number=color_pockets)
-
-        mean_c = 0
-        mean_m = 0
-        mean_y = 0
-        for (key, value) in q_color.items():
-            c, m, y = key
-            mean_c = mean_c + c * value
-            mean_m = mean_m + m * value
-            mean_y = mean_y + y * value
-
-        # mean_r = quantize.cmy_to_rgb(mean_c)
-        # mean_g = quantize.cmy_to_rgb(mean_m)
-        # mean_b = quantize.cmy_to_rgb(mean_y)
-
-
-        mask_r[segments == segVal] = int(mean_c)  # Five start code for replacing values
-        mask_g[segments == segVal] = int(mean_m)  # Five start code for replacing values
-        mask_b[segments == segVal] = int(mean_y)  # Five start code for replacing values
-
-
-
-    final1 = np.dstack((mask_r, mask_g, mask_b))
-    end_color_time = time.time()
-    print('Recoloring time = ', end_color_time - start_color_time)
-    pr.disable()
-    s = StringIO.StringIO()
-    sortby = 'cumulative'
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats()
-    print(s.getvalue())
-    return final1
-
-def check_and_reduce_color(filename):
-    ready_to_process = Image.open(filename).convert('RGB')
-    color = ready_to_process.getcolors()
-    if color == None:
-        reduced_img, cluster_number = cluster.mini_batch_kmeans(filename, 24)
-        cv2.imwrite(filename,reduced_img)
+# def count_proportion(segments, image, color_pockets):
+#     pr.enable()
+#
+#     orig = image
+#     mask_r = np.zeros(image.shape[:2], dtype="uint8")
+#     mask_g = np.zeros(image.shape[:2], dtype="uint8")
+#     mask_b = np.zeros(image.shape[:2], dtype="uint8")
+#     zeros = np.zeros(image.shape[:2], dtype="uint8")
+#
+#     start_color_time = time.time()
+#     for (i, segVal) in enumerate(np.unique(segments)):
+#         mask = zeros.copy()
+#         mask[segments == segVal] = 255  # Five start code for replacing values
+#
+#         masked_segment = cv2.bitwise_and(orig, orig, mask=mask)
+#         masked_segment = cv2.cvtColor(masked_segment, cv2.COLOR_BGR2RGB)
+#         color_dist = get_cdn_in_segment(masked_segment)
+#
+#         cmy_color = color_dist
+#         # cmy_color = quantize.rgb_to_cmy(color_dist)
+#         q_color = quantize.quantize_into_pockets(cmy_color, pocket_number=color_pockets)
+#
+#         mean_c = 0
+#         mean_m = 0
+#         mean_y = 0
+#         for (key, value) in q_color.items():
+#             c, m, y = key
+#             mean_c = mean_c + c * value
+#             mean_m = mean_m + m * value
+#             mean_y = mean_y + y * value
+#
+#         # mean_r = quantize.cmy_to_rgb(mean_c)
+#         # mean_g = quantize.cmy_to_rgb(mean_m)
+#         # mean_b = quantize.cmy_to_rgb(mean_y)
+#
+#
+#         mask_r[segments == segVal] = int(mean_c)  # Five start code for replacing values
+#         mask_g[segments == segVal] = int(mean_m)  # Five start code for replacing values
+#         mask_b[segments == segVal] = int(mean_y)  # Five start code for replacing values
+#
+#
+#
+#     final1 = np.dstack((mask_r, mask_g, mask_b))
+#     end_color_time = time.time()
+#     print('Recoloring time = ', end_color_time - start_color_time)
+#     pr.disable()
+#     s = StringIO.StringIO()
+#     sortby = 'cumulative'
+#     ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+#     ps.print_stats()
+#     print(s.getvalue())
+#     return final1
+#
+#
+# def check_and_reduce_color(filename):
+#     ready_to_process = Image.open(filename).convert('RGB')
+#     color = ready_to_process.getcolors()
+#     if color == None:
+#         reduced_img, cluster_number = cluster.mini_batch_kmeans(filename, 24)
+#         cv2.imwrite(filename,reduced_img)
 
 
 def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim, grayscale_flag):
@@ -200,20 +193,13 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
             print('Dither failed due to less number of Colors in Image than defined color')
             dither_flag = False
 
-    # check_and_reduce_color(filename)
     start_slic = time.time()
-    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+    ready_for_segment_img = Image.open(filename).convert('RGB')
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, np.asarray(ready_for_segment_img), segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
     print('Slic Time = ', time.time()-start_slic)
-    # print('fname before segval =', filename)
-    # original = cv2.imread(filename)
-    #
-    # original_r = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
 
-    # color_replaced_r = count_proportion(segmented_r, original_r, color_pockets)
     color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
-    print(color_replaced_r_path)
     color_replaced_r = cv2.imread(color_replaced_r_path)
-    # color_replaced_r = cv2.cvtColor(color_replaced_r, cv2.COLOR_BGR2RGB)
 
     if resize_flag == True:
         color_replaced_r = scale_down_image(color_replaced_r, resize_factor)
@@ -226,19 +212,8 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
     segmented_image = cv2.imread(segmented_img_path)
     dithered_img_path = 'A_DITHERED/' + name
     dithered_img = cv2.imread(dithered_img_path)
-    # if resize_flag == True:
-    #     # color_replaced_r = scale_down_image(color_replaced_r, resize_factor)
-    #     segmented_image = scale_down_image(segmented_image, resize_factor)
-    #     if dither_flag == True:
-    #         dithered_img = scale_down_image(dithered_img, resize_factor)
 
-    dir_path = os.getcwd()
-    dir_path = dir_path.replace('\\','/')
     output_img_path = dir_path + '/' + output_img_path
-
-    # color_reduce_time = time.time()
-    # reduced_color_path, cluster_number, reduced_color_img = cluster.get_dominant_color(output_img_path,reduce_color_number)
-    # print('Mini batch Kmeans time = ', time.time() - color_reduce_time)
 
     color_reduce_time2 = time.time()
     reduced_color_path = dllFunctions.reduce_color(output_img_path, reduce_color_number, dir_path)
@@ -249,13 +224,8 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
     if not os.path.exists('A_STICHED_OUTPUT'):
         os.makedirs('A_STICHED_OUTPUT')
     cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
-    # except:
-    #     joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
-    #     if not os.path.exists('A_STICHED_OUTPUT'):
-    #         os.makedirs('A_STICHED_OUTPUT')
-    #     cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number)+'-'+ str(sigma)+str(connectivity)+str(compactness)+'c'+str(color_pockets)+name, joined_img)
 
-    return output_img_path, reduced_color_path, str(time.time()-start),reduce_color_number
+    return output_img_path, reduced_color_path, str(time.time()-start), reduce_color_number
 
 
 # filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim

@@ -163,3 +163,387 @@ IMG_20180612_0002_Page_4dither_image() takes 3 positional arguments but 4 were g
   File "E:\Work\dithered_color_percent\dither_algorithm.py", line 25, in dither
     saving_path = dllFunctions.dither_image(filename, number_of_color, dir_path)
 TypeError: dither_image() takes 3 positional arguments but 4 were given
+001109_0552_0122_nlhsAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+001205_0581_0040_nlhsAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+010902_0905_0016_llhsAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+020513_1507_0009_dlhsAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+2170Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+2179Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+2183Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+6096Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+6118Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+6096Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+6118Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+6096Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+6118Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 552, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Ascenure'str' object has no attribute 'write'Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 46, in slic_superpixel
+    writer.write('test.png', segments_slic_r)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 648, in write
+    nrows = self.write_passes(outfile, check_rows(rows))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 682, in write_passes
+    return self.write_packed(outfile, rows)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 702, in write_packed
+    self.write_preamble(outfile)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 741, in write_preamble
+    outfile.write(signature)
+AttributeError: 'str' object has no attribute 'write'
+Ascenure'str' object has no attribute 'write'Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 46, in slic_superpixel
+    writer.write('test.png', segments_slic_r)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 648, in write
+    nrows = self.write_passes(outfile, check_rows(rows))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 682, in write_passes
+    return self.write_packed(outfile, rows)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 702, in write_packed
+    self.write_preamble(outfile)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 741, in write_preamble
+    outfile.write(signature)
+AttributeError: 'str' object has no attribute 'write'
+Ascenure'str' object has no attribute 'write'Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 48, in slic_superpixel
+    writer.write('test.png', segments_slic_r)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 648, in write
+    nrows = self.write_passes(outfile, check_rows(rows))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 682, in write_passes
+    return self.write_packed(outfile, rows)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 702, in write_packed
+    self.write_preamble(outfile)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 741, in write_preamble
+    outfile.write(signature)
+AttributeError: 'str' object has no attribute 'write'
+Ascenure'str' object has no attribute 'write'Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 48, in slic_superpixel
+    writer.write('test.png', segments_slic_r)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 648, in write
+    nrows = self.write_passes(outfile, check_rows(rows))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 682, in write_passes
+    return self.write_packed(outfile, rows)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 702, in write_packed
+    self.write_preamble(outfile)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 741, in write_preamble
+    outfile.write(signature)
+AttributeError: 'str' object has no attribute 'write'
+Ascenure'str' object has no attribute 'write'Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 49, in slic_superpixel
+    writer.write('test.png', segments_slic_r)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 648, in write
+    nrows = self.write_passes(outfile, check_rows(rows))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 682, in write_passes
+    return self.write_packed(outfile, rows)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 702, in write_packed
+    self.write_preamble(outfile)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\png.py", line 741, in write_preamble
+    outfile.write(signature)
+AttributeError: 'str' object has no attribute 'write'
+AscenureNo such file: 'C:\Users\HP\16-bit_test.png'Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 68, in slic_superpixel
+    i = imageio.imread("~/16-bit_test.png")
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\imageio\core\functions.py", line 221, in imread
+    reader = read(uri, format, "i", **kwargs)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\imageio\core\functions.py", line 130, in get_reader
+    request = Request(uri, "r" + mode, **kwargs)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\imageio\core\request.py", line 126, in __init__
+    self._parse_uri(uri)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\imageio\core\request.py", line 278, in _parse_uri
+    raise FileNotFoundError("No such file: '%s'" % fn)
+FileNotFoundError: No such file: 'C:\Users\HP\16-bit_test.png'
+Ascenuredata type not understoodTraceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 59, in slic_superpixel
+    cv2.imwrite(segmented_img_path, segments_slic_r.astype(cv2.CV_16U))
+TypeError: data type not understood
+Ascenuredata type not understoodTraceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 53, in slic_superpixel
+    cv2.imwrite(segmented_img_path, segments_slic_r.astype(cv2.CV_16U))
+TypeError: data type not understood
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+ditheredAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+test (12).processedAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+test (12).processedAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 575, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 578, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 578, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 213, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureCannot handle this data typeTraceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2517, in fromarray
+    mode, rawmode = _fromarray_typemap[typekey]
+KeyError: ((1, 1, 3), '<i8')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 643, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 50, in slic_superpixel
+    three_channel = Image.fromarray(three_channel)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2519, in fromarray
+    raise TypeError("Cannot handle this data type")
+TypeError: Cannot handle this data type
+Ascenure'Image' object has no attribute 'upper'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 643, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 51, in slic_superpixel
+    three_channel.save('segmented.png', three_channel)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 1980, in save
+    if format.upper() not in SAVE:
+AttributeError: 'Image' object has no attribute 'upper'
+AscenureCannot handle this data typeTraceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2517, in fromarray
+    mode, rawmode = _fromarray_typemap[typekey]
+KeyError: ((1, 1), '<i8')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 643, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 60, in slic_superpixel
+    segments_slic_r_pil = Image.fromarray(segments_slic_r)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2519, in fromarray
+    raise TypeError("Cannot handle this data type")
+TypeError: Cannot handle this data type
+Ascenurename 'filename' is not definedTraceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 643, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 206, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(np.asarray(ready_for_segment_img), segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 51, in slic_superpixel
+    fname = filename.split('/')
+NameError: name 'filename' is not defined

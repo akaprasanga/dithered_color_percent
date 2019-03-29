@@ -1,5 +1,5 @@
 
-class FunctionsFromDLL():
+class FunctionsFromDLL:
     def dither_image(self,filename, number, dir_path):
         import os
         import clr

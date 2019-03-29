@@ -1,17 +1,12 @@
 from skimage.segmentation import slic,felzenszwalb,quickshift
 from skimage.segmentation import mark_boundaries
-from skimage.transform import rescale
-from skimage.transform import resize
 import numpy as np
 from skimage.util import img_as_float
-from skimage import io
 import matplotlib.pyplot as plt
 import os
 import hitherdither
 from PIL import Image
-import time
-from skimage.measure import regionprops
-from multiprocessing import Pool, TimeoutError
+import cv2
 
 
 class Segment:
@@ -19,38 +14,32 @@ class Segment:
     def __init__(self):
         pass
 
-    def slic_superpixel(self, filename, segment_number, connectivity, s, k, color_pockets, resize_flag, resize_factor, dim_change_flag, dim, grayscale_flag):
+    def slic_superpixel(self, filename, image, segment_number, connectivity, s, k, color_pockets, resize_flag, resize_factor, dim_change_flag, dim, grayscale_flag):
         """
         :param filename: image to segment
         :param segment_number: nomuber of regions based on LAB color Space
         :return: segmented images with defined boundaries
         """
-        # print('Before Segmentation == ', filename)
-        image = img_as_float(io.imread(filename))
-        # if dim_change_flag == True:
-        #     w, h = dim
-        #     image =resize(image,(h,w),anti_aliasing=True)
 
-        if grayscale_flag == True:
-            image = np.dstack((image, image, image))
+        print(image.shape)
+
+        # if grayscale_flag == True:
+        #     image = np.dstack((image, image, image))
+        #     print(image.shape)
 
         image_r = image[:, :, :3]
-
-        segmentation_time = time.time()
 
         segments_slic_r = slic(image_r, n_segments=segment_number, enforce_connectivity=connectivity, convert2lab=True,
                              multichannel=True, sigma=s, compactness=k)
 
-        # with Pool(processes=4) as pool:
-        #     pool.map(slic,[])
-        end_seg_time = time.time()
-        # temp_segmented = segments_slic_r * 10
-        # io.imsave('temp.png', segments_slic_r)
-        print('Segmentation Time = ', end_seg_time-segmentation_time)
+        channel_one = np.zeros(segments_slic_r.shape, segments_slic_r.dtype)
+        channel_two = segments_slic_r // 255
+        channel_three = segments_slic_r % 255
 
-        # boundaries = mark_boundaries(image, segments_slic)
-        # boundaries_r = mark_boundaries(image_r, segments_slic_r)
+        three_channel = np.dstack((channel_one, channel_two, channel_three))
 
+        three_channel = Image.fromarray(three_channel.astype('uint8'))
+        three_channel.save('segmented.png')
         fname = filename.split('/')
         fname = fname[len(fname)-1]
         if not os.path.exists('A_SEGMENTED'):
@@ -59,20 +48,8 @@ class Segment:
         fname = fname[0:length-4]+'-r'+fname[length-4:length]
         segmented_img_path = 'A_SEGMENTED/s' + str(segment_number) + '-' + str(s) + str(connectivity) + str(
             k) + 'c' + str(color_pockets) + fname
-        io.imsave(segmented_img_path, segments_slic_r)
-
-
-        # out = image_r.copy()
-        #
-        # def paint_region_with_avg_intensity(rp, mi, channel):
-        #     for i in range(rp.shape[0]):
-        #         out[rp[i][0]][rp[i][1]][channel] = mi
-        # for i in range(3):
-        #     regions = regionprops(segments_slic_r, intensity_image=out[:, :, i])
-        #     for r in regions:
-        #         paint_region_with_avg_intensity(r.coords, int(r.mean_intensity), i)
-        # io.imsave('trial.jpg', out)
-
+        segments_slic_r_pil = Image.fromarray(segments_slic_r.astype('uint8'))
+        segments_slic_r_pil.save(segmented_img_path)
         return segments_slic_r, segmented_img_path
 
     def fz_superpixel(self, filename, f_scale):

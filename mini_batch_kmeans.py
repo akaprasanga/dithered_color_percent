@@ -3,8 +3,8 @@ import numpy as np
 import argparse
 import cv2
 
-filename = 'images/Miami-Heat.png'
-k = 5
+filename = '001109_0552_0122_nlhs.png'
+k = 4
 image = cv2.imread(filename)
 (h, w) = image.shape[:2]
 
@@ -18,6 +18,7 @@ image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
 # reshape the image into a feature vector so that k-means
 # can be applied
 image = image.reshape((image.shape[0] * image.shape[1], 3))
+
 
 # apply k-means using the specified number of clusters and
 # then create the quantized image based on the predictions
