@@ -5,10 +5,11 @@ import time
 from PIL import Image
 import os
 from dither_from_dll import FunctionsFromDLL
-
+from mixply import MixPLy
 
 dllFunctions = FunctionsFromDLL()
 seg = Segment()
+mixPly = MixPLy()
 # area = 0
 # area_r = 0
 
@@ -142,45 +143,58 @@ def get_max_value_from_dict(dictionary):
 #         cv2.imwrite(filename,reduced_img)
 
 
-def main(filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim, grayscale_flag):
+def main(filename, img_to_process, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim, grayscale_flag):
     print('Processing started ==', filename)
+    # print(img_to_process)
     dir_path = os.getcwd()
     dir_path = dir_path.replace('\\', '/')
     actual_name = os.path.splitext(filename)[0]
     actual_name = actual_name.split('/')
     actual_name = actual_name[len(actual_name) - 1]
+    original_without_dither = cv2.imread(filename)
 
     if grayscale_flag == True:
-        im = cv2.imread(filename, 0)
-        if not os.path.exists('A_Grayscaled'):
-            os.makedirs('A_Grayscaled')
-        path_after_grayscale = dir_path + '/A_Grayscaled/' + actual_name + '.png'
-        im = np.dstack((im, im, im))
-        cv2.imwrite(path_after_grayscale, im)
-        filename = path_after_grayscale
+        # im = cv2.imread(filename, 0)
+        # if not os.path.exists('A_Grayscaled'):
+        #     os.makedirs('A_Grayscaled')
+        # path_after_grayscale = dir_path + '/A_Grayscaled/' + actual_name + '.png'
+        # im = np.dstack((im, im, im))
+        # cv2.imwrite(path_after_grayscale, im)
+        # filename = path_after_grayscale
+        img_to_process = cv2.cvtColor(img_to_process, cv2.COLOR_BGR2GRAY)
 
     no_dim_change = cv2.imread(filename)
     orig_dim = tuple((no_dim_change.shape[1], no_dim_change.shape[0]))
-    if (dim_change_flag == True) and (dim != orig_dim):
-        dim_changed = cv2.resize(no_dim_change, dim)
-        if not os.path.exists('A_900X1200'):
-            os.makedirs('A_900X1200')
-        path_after_dim_changed = dir_path + '/A_900X1200/' + actual_name + '.png'
-        cv2.imwrite(path_after_dim_changed, dim_changed)
-        filename = path_after_dim_changed
+    if (dim_change_flag==True) and (dim != orig_dim):
+        # dim_changed = cv2.resize(no_dim_change, dim)
+        # if not os.path.exists('A_900X1200'):
+        #     os.makedirs('A_900X1200')
+        # path_after_dim_changed = dir_path + '/A_900X1200/' + actual_name + '.png'
+        # cv2.imwrite(path_after_dim_changed, dim_changed)
+        # filename = path_after_dim_changed
+        img_to_process = cv2.resize(img_to_process, dim)
+        original_without_dither = cv2.resize(original_without_dither, dim)
 
-    original_without_dither = cv2.imread(filename)
 
     if resize_flag == True:
-        non_resized = cv2.imread(filename)
-        upscaled = scale_up_image(non_resized,resize_factor)
-        upscaled_rgb = cv2.cvtColor(upscaled, cv2.COLOR_BGR2RGB)
-        upscaled_pil = convert_to_pillow_format(upscaled_rgb)
+        # non_resized = cv2.imread(filename)
+        upscaled = scale_up_image(img_to_process, resize_factor)
+        # upscaled_rgb = cv2.cvtColor(upscaled, cv2.COLOR_BGR2RGB)
+        # upscaled_pil = convert_to_pillow_format(upscaled_rgb)
 
         if not os.path.exists('A_UPSCALED_INPUT'):
             os.makedirs('A_UPSCALED_INPUT')
         path_after_upscaled = dir_path + '/A_UPSCALED_INPUT/' + actual_name + '.png'
-        upscaled_pil.save(path_after_upscaled)
+        # upscaled_pil.save(path_after_upscaled)
+        cv2.imwrite(path_after_upscaled, upscaled)
+        filename = path_after_upscaled
+
+    if resize_flag == False:
+        if not os.path.exists('A_UPSCALED_INPUT'):
+            os.makedirs('A_UPSCALED_INPUT')
+        path_after_upscaled = dir_path + '/A_UPSCALED_INPUT/' + actual_name + '.png'
+        # upscaled_pil.save(path_after_upscaled)
+        cv2.imwrite(path_after_upscaled, img_to_process)
         filename = path_after_upscaled
 
     start = time.time()
@@ -195,6 +209,7 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
 
     start_slic = time.time()
     ready_for_segment_img = Image.open(filename).convert('RGB')
+    # colors_for_mixply = ready_for_segment_img.getcolors()
     segmented_r, segmented_img_path = seg.slic_superpixel(filename, np.asarray(ready_for_segment_img), segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
     print('Slic Time = ', time.time()-start_slic)
 
@@ -216,16 +231,23 @@ def main(filename, dither_flag, dither_color, segment_number, connectivity, comp
     output_img_path = dir_path + '/' + output_img_path
 
     color_reduce_time2 = time.time()
-    reduced_color_path = dllFunctions.reduce_color(output_img_path, reduce_color_number, dir_path)
-    reduced_color_img = cv2.imread(reduced_color_path)
-    print('Dll Kmeans time = ', time.time() - color_reduce_time2)
+    reduced_color_path = dllFunctions.reduce_color(output_img_path, dither_color*dither_color, dir_path)
+    image_using_mixedply = mixPly.call_mixply_function(dither_color, reduced_color_path)
+    image_using_mixedply = cv2.cvtColor(image_using_mixedply, cv2.COLOR_RGB2BGR)
+    mixply_img_path  = 'A_MIXEDPLY_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name
+    if not os.path.exists('A_MIXEDPLY_OUTPUT'):
+        os.makedirs('A_MIXEDPLY_OUTPUT')
+    cv2.imwrite(mixply_img_path, image_using_mixedply)
 
-    joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
+    # reduced_color_img = cv2.imread(reduced_color_path)
+    print('Dll Kmeans time = ', time.time() - color_reduce_time2)
+    print(original_without_dither.shape, color_replaced_r.shape, image_using_mixedply.shape)
+    joined_img = np.hstack((original_without_dither, color_replaced_r, image_using_mixedply))
     if not os.path.exists('A_STICHED_OUTPUT'):
         os.makedirs('A_STICHED_OUTPUT')
     cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
 
-    return output_img_path, reduced_color_path, str(time.time()-start), reduce_color_number
+    return output_img_path, reduced_color_path, str(time.time()-start), reduce_color_number, mixply_img_path
 
 
 # filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim

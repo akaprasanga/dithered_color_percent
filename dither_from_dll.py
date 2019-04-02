@@ -1,3 +1,4 @@
+import cv2
 
 class FunctionsFromDLL:
     def dither_image(self,filename, number, dir_path):
@@ -36,6 +37,9 @@ class FunctionsFromDLL:
         clr.AddReference(utilities_path)
         from Utilities import ImageProcessing
         obj = ImageProcessing()
+        orig_file = cv2.imread(original_filename)
+        index_file = cv2.imread(index_filename)
+        print('Before going to replace color ', orig_file.shape, index_file.shape)
         saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
         return saved_path
 

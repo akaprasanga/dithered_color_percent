@@ -547,3 +547,373 @@ Ascenurename 'filename' is not definedTraceback (most recent call last):
   File "E:\Work\dithered_color_percent\segmentation.py", line 51, in slic_superpixel
     fname = filename.split('/')
 NameError: name 'filename' is not defined
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 669, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 681, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 681, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureWorkerThread.slic_thread_signal[list] signal has 1 argument(s) but 5 providedTraceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 692, in run
+    self.slic_thread_signal.emit(self.current_path,output_path, dither_path, time, str(k_number))
+TypeError: WorkerThread.slic_thread_signal[list] signal has 1 argument(s) but 5 provided
+AscenureWorkerThread.slic_thread_signal[list] signal has 1 argument(s) but 5 providedTraceback (most recent call last):
+  File "Dither.py", line 692, in run
+    self.slic_thread_signal.emit(self.current_path,output_path, dither_path, time, str(k_number))
+TypeError: WorkerThread.slic_thread_signal[list] signal has 1 argument(s) but 5 provided
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 691, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 691, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 693, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 694, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Siam-Red-Pride.processedAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 658, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+testAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 658, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Threshold RevelimaAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 658, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Wizcraft 12 colors and 10 ratio.processedAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 658, in run
+    self.resize_factor, self.reduce_color_number,self.change_dim_flag,self.dim,self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 701, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 201, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureOpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\resize.cpp:3784: error: (-215:Assertion failed) !ssize.empty() in function 'cv::resize'
+Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 172, in main
+    img_to_process = cv2.resize(img_to_process, dim)
+cv2.error: OpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\resize.cpp:3784: error: (-215:Assertion failed) !ssize.empty() in function 'cv::resize'
+
+AscenureOpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\resize.cpp:3784: error: (-215:Assertion failed) !ssize.empty() in function 'cv::resize'
+Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 173, in main
+    img_to_process = cv2.resize(img_to_process, dim)
+cv2.error: OpenCV(4.0.0) C:\projects\opencv-python\opencv\modules\imgproc\src\resize.cpp:3784: error: (-215:Assertion failed) !ssize.empty() in function 'cv::resize'
+
+Ascenureall the input array dimensions except for the concatenation axis must match exactlyTraceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 227, in main
+    joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input array dimensions except for the concatenation axis must match exactly
+Ascenureall the input array dimensions except for the concatenation axis must match exactlyTraceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 227, in main
+    joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input array dimensions except for the concatenation axis must match exactly
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 205, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+ditheredall the input array dimensions except for the concatenation axis must match exactlyTraceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 227, in main
+    joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input array dimensions except for the concatenation axis must match exactly
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 206, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+ditheredall the input array dimensions except for the concatenation axis must match exactlyTraceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 228, in main
+    joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input array dimensions except for the concatenation axis must match exactly
+ditheredall the input array dimensions except for the concatenation axis must match exactlyTraceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 228, in main
+    joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input array dimensions except for the concatenation axis must match exactly
+ditheredall the input array dimensions except for the concatenation axis must match exactlyTraceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 228, in main
+    joined_img = np.hstack((original_without_dither, color_replaced_r, reduced_color_img))
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\numpy\core\shape_base.py", line 288, in hstack
+    return _nx.concatenate(arrs, 1)
+ValueError: all the input array dimensions except for the concatenation axis must match exactly
+Threshold RevelimaAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 214, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Threshold RevelimaAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 214, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Threshold RevelimaAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 214, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Threshold RevelimaAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 214, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Wizcraft 12 colors and 10 ratio.processedAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 698, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Ascenuretime() takes no arguments (1 given)Traceback (most recent call last):
+  File "Dither.py", line 703, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 235, in main
+    image_using_mixedply = mixPly.call_mixply_function(dither_color, reduced_color_path)
+  File "E:\Work\dithered_color_percent\mixply.py", line 255, in call_mixply_function
+    print('Mixply Time:', time.time(-start))
+TypeError: time() takes no arguments (1 given)
+testAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 705, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Threshold RevelimaAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 705, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 39, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+testAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 705, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+testAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 705, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Wizcraft 12 colors and 10 ratio.processedAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 705, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+Siam-Red-Pride.processedAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 712, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+MV5BMjI0MTg3MzI0M15BMl5BanBnXkFtZTcwMzQyODU2Mw@@._V1_UY317_CR10,0,214,317_AL_Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 712, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureAttempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "Dither.py", line 712, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.DivideByZeroException: Attempted to divide by zero.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
