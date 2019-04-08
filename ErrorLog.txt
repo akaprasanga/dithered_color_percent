@@ -917,3 +917,33 @@ AscenureAttempted to divide by zero.
     saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
 System.DivideByZeroException: Attempted to divide by zero.
    at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureIndex was outside the bounds of the array.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 712, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureIndex was outside the bounds of the array.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 712, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+AscenureIndex was outside the bounds of the array.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 712, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 216, in main
+    color_replaced_r_path = dllFunctions.replace_mean_color(filename, segmented_img_path, dir_path)
+  File "E:\Work\dithered_color_percent\dither_from_dll.py", line 43, in replace_mean_color
+    saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)

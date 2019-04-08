@@ -34,13 +34,13 @@ class Segment:
         print(np.unique(segments_slic_r))
 
         channel_one = np.zeros(segments_slic_r.shape, segments_slic_r.dtype)
-        channel_two = segments_slic_r // 255
-        channel_three = segments_slic_r % 255
+        channel_two = segments_slic_r // 256
+        channel_three = segments_slic_r % 256
 
         three_channel = np.dstack((channel_one, channel_two, channel_three))
 
         three_channel = Image.fromarray(three_channel.astype('uint8'))
-        three_channel.save('segmented.png')
+        # three_channel.save('segmented.png')
         fname = filename.split('/')
         fname = fname[len(fname)-1]
         if not os.path.exists('A_SEGMENTED'):
@@ -49,8 +49,8 @@ class Segment:
         fname = fname[0:length-4]+'-r'+fname[length-4:length]
         segmented_img_path = 'A_SEGMENTED/s' + str(segment_number) + '-' + str(s) + str(connectivity) + str(
             k) + 'c' + str(color_pockets) + fname
-        segments_slic_r_pil = Image.fromarray(segments_slic_r.astype('uint8'))
-        segments_slic_r_pil.save(segmented_img_path)
+        # segments_slic_r_pil = Image.fromarray(segments_slic_r.astype('uint8'))
+        three_channel.save(segmented_img_path)
         return segments_slic_r, segmented_img_path
 
     # def fz_superpixel(self, filename, f_scale):

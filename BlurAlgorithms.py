@@ -2,9 +2,7 @@ import numpy as np
 import cv2
 from PIL import Image
 from PIL import ImageEnhance
-from PIL import ImageFilter
-import scipy
-from scipy import ndimage
+
 
 
 class BlurFilters:

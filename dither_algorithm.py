@@ -231,23 +231,23 @@ def main(filename, img_to_process, dither_flag, dither_color, segment_number, co
     output_img_path = dir_path + '/' + output_img_path
 
     color_reduce_time2 = time.time()
-    reduced_color_path = dllFunctions.reduce_color(output_img_path, dither_color*dither_color, dir_path)
-    image_using_mixedply = mixPly.call_mixply_function(dither_color, reduced_color_path)
-    image_using_mixedply = cv2.cvtColor(image_using_mixedply, cv2.COLOR_RGB2BGR)
+    reduced_color_path = dllFunctions.reduce_color(output_img_path, reduce_color_number, dir_path)
+    # image_using_mixedply = mixPly.call_mixply_function(dither_color, reduced_color_path)
+    # image_using_mixedply = cv2.cvtColor(image_using_mixedply, cv2.COLOR_RGB2BGR)
     mixply_img_path  = 'A_MIXEDPLY_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name
     if not os.path.exists('A_MIXEDPLY_OUTPUT'):
         os.makedirs('A_MIXEDPLY_OUTPUT')
-    cv2.imwrite(mixply_img_path, image_using_mixedply)
+    # cv2.imwrite(mixply_img_path, image_using_mixedply)
 
     # reduced_color_img = cv2.imread(reduced_color_path)
     print('Dll Kmeans time = ', time.time() - color_reduce_time2)
-    print(original_without_dither.shape, color_replaced_r.shape, image_using_mixedply.shape)
-    joined_img = np.hstack((original_without_dither, color_replaced_r, image_using_mixedply))
+    # print(original_without_dither.shape, color_replaced_r.shape, image_using_mixedply.shape)
+    joined_img = np.hstack((original_without_dither, color_replaced_r, color_replaced_r))
     if not os.path.exists('A_STICHED_OUTPUT'):
         os.makedirs('A_STICHED_OUTPUT')
     cv2.imwrite('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name, joined_img)
 
-    return output_img_path, reduced_color_path, str(time.time()-start), reduce_color_number, mixply_img_path
+    return output_img_path, reduced_color_path, str(time.time()-start), reduce_color_number, reduced_color_path
 
 
 # filename, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim
