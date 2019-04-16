@@ -75,8 +75,8 @@ l6 = {(186, 175, 181): 0.2735160300497302, (135, 130, 156): 0.5671357528303883, 
 
 #
 # quantize_into_pockets(l6)
-# img = Image.open('6colordither/IMG_20180612_0002_Page_2.processed.png').convert('RGB')
-# img = Image.open('original/floral.png').convert('RGB')
+# img = Image.open_filedialog('6colordither/IMG_20180612_0002_Page_2.processed.png').convert('RGB')
+# img = Image.open_filedialog('original/floral.png').convert('RGB')
 # dit = dither(img)
 # dit.save('dithered.png')
 # print(img)

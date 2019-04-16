@@ -36,19 +36,19 @@ class WidgetGallery(QDialog):
         styleComboBox = QComboBox()
         styleComboBox.addItems(QStyleFactory.keys())
 
-        self.createImageShower()
-        self.createTopLeftGroupBox()
-        self.createTopRightGroupBox()
-        self.createBottomLeftTabWidget()
-        self.createBottomRightGroupBox()
+        self.create_image_listview()
+        self.create_parameter_groupbox()
+        self.create_main_img_groupbox()
+        self.create_final_img_groupbox()
+        self.create_reduced_color_groupbox()
         self.thread_signal_connect()
 
 
         self.ImageShower.setFixedWidth(100)
-        self.topLeftGroupBox.setFixedWidth(350)
+        self.parameter_group_box.setFixedWidth(350)
         mainLayout = QGridLayout()
         second_grid_layout = self.second_grid_layout()
-        mainLayout.addWidget(self.topLeftGroupBox, 1, 0)
+        mainLayout.addWidget(self.parameter_group_box, 1, 0)
         mainLayout.addWidget(self.ImageShower, 1, 1)
         mainLayout.addWidget(second_grid_layout, 1, 2)
         # mainLayout.addWidget(self.topRightGroupBox, 1, 2)
@@ -66,17 +66,17 @@ class WidgetGallery(QDialog):
         self.setWindowTitle("Dithering")
         self.changeStyle('Fusion')
 
-    def createTopLeftGroupBox(self):
-        self.topLeftGroupBox = QGroupBox("Parameters")
+    def create_parameter_groupbox(self):
+        self.parameter_group_box = QGroupBox("Parameters")
         bluring_groupbox = self.create_bluring_groupbox()
         self.defaultPushButton = QPushButton("Choose Folder")
-        self.defaultPushButton.clicked.connect(self.open)
+        self.defaultPushButton.clicked.connect(self.open_filedialog)
 
         self.grayscalebutton = QCheckBox("Process in GrayScale")
         self.grayscalebutton.setChecked(False)
 
         self.ditherRadioButton = QRadioButton("Dither and then Process")
-        self.ditherRadioButton.setChecked(True)
+        self.ditherRadioButton.setChecked(False)
 
         self.resizeButton = QCheckBox("Upscale and then Process")
         self.resizeButton.setChecked(False)
@@ -100,10 +100,10 @@ class WidgetGallery(QDialog):
 
         self.segments_number = QSpinBox()
         self.segments_number.setMaximum(10000)
-        self.segments_number.setValue(200)
+        self.segments_number.setValue(250)
 
         self.compactness = QSpinBox()
-        self.compactness.setValue(5)
+        self.compactness.setValue(3)
         self.compactness.setMinimum(1)
 
         self.sigma = QSpinBox()
@@ -135,7 +135,7 @@ class WidgetGallery(QDialog):
         self.time = QLabel()
 
         self.processPushButton = QPushButton("Batch Process All Images")
-        self.processPushButton.clicked.connect(self.process_all_images)
+        self.processPushButton.clicked.connect(self.batch_process_images)
 
         self.kmeans_push_button = QPushButton("Reduce Color")
         self.kmeans_push_button.clicked.connect(self.reduce_color_final_img)
@@ -193,7 +193,7 @@ class WidgetGallery(QDialog):
 
 
         # layout.addStretch(0)
-        self.topLeftGroupBox.setLayout(layout)
+        self.parameter_group_box.setLayout(layout)
 
     def create_bluring_groupbox(self):
         group_box = QGroupBox('PreProcessing Tools')
@@ -210,7 +210,7 @@ class WidgetGallery(QDialog):
         sharpen_label = QLabel('Sharpen')
         self.sharpen_slider = QSpinBox()
         self.sharpen_slider.setMinimum(0)
-        self.sharpen_slider.setMaximum(3)
+        self.sharpen_slider.setMaximum(10)
         # self.sharpen_slider.setTickInterval(1)
         # self.sharpen_slider.setSingleStep(1)
         self.revert_blurred_img_btn = QPushButton('Revert to Original Image')
@@ -228,6 +228,20 @@ class WidgetGallery(QDialog):
 
         group_box.setLayout(grid_layout)
         return group_box
+
+    def create_image_listview(self):
+        self.ImageShower = QGroupBox("Loaded Images")
+        self.ImageShowerList = QListWidget()
+        self.ImageShowerList.setFocusPolicy(Qt.StrongFocus)
+        # self.ImageShowerList.itemClicked.connect(self.itemClicked)
+        self.ImageShowerList.currentItemChanged.connect(self.itemClicked)
+        self.ImageShowerList.doubleClicked.connect(self.itemDoubleClicked)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.ImageShowerList)
+        #
+        # layout.addStretch(1)
+        self.ImageShower.setLayout(layout)
 
     def create_mixply_group_box(self):
         mixply_groupbox = QGroupBox('Mixply Section')
@@ -254,8 +268,8 @@ class WidgetGallery(QDialog):
         mixply_groupbox.setLayout(grid_layout)
         return mixply_groupbox
 
-    def createTopRightGroupBox(self):
-        self.topRightGroupBox = QGroupBox("Image To Process")
+    def create_main_img_groupbox(self):
+        self.main_img_group_box = QGroupBox("Image To Process")
 
         self.img_label = QLabel(self)
 
@@ -266,43 +280,43 @@ class WidgetGallery(QDialog):
         layout.addStretch(1)
         # print(self.img_label.height(), self.img_label.width())
 
-        self.topRightGroupBox.setLayout(layout)
+        self.main_img_group_box.setLayout(layout)
 
-    def createBottomLeftTabWidget(self):
-        self.bottomLeftTabWidget = QGroupBox("Final Image")
-        self.segmented_img_label = QLabel(self)
+    def create_final_img_groupbox(self):
+        self.final_img_group_box = QGroupBox("Final Image")
+        self.final_img_lbl = QLabel(self)
         # self.segmented_img_label.addStreach(1)
 
         layout = QVBoxLayout()
-        layout.addWidget(self.segmented_img_label)
+        layout.addWidget(self.final_img_lbl)
 
         layout.addStretch(1)
 
-        self.bottomLeftTabWidget.setLayout(layout)
+        self.final_img_group_box.setLayout(layout)
 
-    def createBottomRightGroupBox(self):
-        self.bottomRightGroupBox = QGroupBox("Reduced Color")
-        self.final_image_label = QLabel(self)
+    def create_reduced_color_groupbox(self):
+        self.reduced_color_group_box = QGroupBox("Reduced Color")
+        self.reduced_color_img_lbl = QLabel(self)
         self.reduced_number_of_color = QLabel(self)
 
 
 
         layout = QVBoxLayout()
-        layout.addWidget(self.final_image_label)
+        layout.addWidget(self.reduced_color_img_lbl)
         layout.addWidget(self.reduced_number_of_color)
 
         layout.addStretch(1)
-        self.bottomRightGroupBox.setLayout(layout)
+        self.reduced_color_group_box.setLayout(layout)
 
     def create_mixply_img_groupbox(self):
         mix_ply_img_lbl = QGroupBox("Image Using Mixply")
 
-        self.mixply_img = QLabel(self)
+        self.mixply_img_lbl = QLabel(self)
         self.mixply_color_number = QLabel()
 
         layout = QVBoxLayout()
 
-        layout.addWidget(self.mixply_img)
+        layout.addWidget(self.mixply_img_lbl)
         layout.addWidget(self.mixply_color_number)
         # layout.maximumSize()
         layout.addStretch(1)
@@ -318,9 +332,9 @@ class WidgetGallery(QDialog):
         second_vertical_box = QGroupBox('Images')
         second_grid_layout = QGridLayout()
         mix_ply_img_lbl = self.create_mixply_img_groupbox()
-        second_grid_layout.addWidget(self.topRightGroupBox, 0, 0)
-        second_grid_layout.addWidget(self.bottomLeftTabWidget, 0, 1)
-        second_grid_layout.addWidget(self.bottomRightGroupBox, 1, 0)
+        second_grid_layout.addWidget(self.main_img_group_box, 0, 0)
+        second_grid_layout.addWidget(self.final_img_group_box, 0, 1)
+        second_grid_layout.addWidget(self.reduced_color_group_box, 1, 0)
         second_grid_layout.addWidget(mix_ply_img_lbl, 1, 1)
         second_vertical_box.setLayout(second_grid_layout)
         return second_vertical_box
@@ -337,8 +351,8 @@ class WidgetGallery(QDialog):
 
     def revert_blurred_image(self):
         self.restore_blur_parametrs()
-        # self.current_img = np.asarray(Image.open(self.img_to_process).convert('RGB'))
-        self.current_img = cv2.imread(self.img_to_process)
+        self.current_img = np.asarray(Image.open(self.img_to_process).convert('RGB'), dtype='uint8')
+        # self.current_img = cv2.imread(self.img_to_process)
         self.render_img_from_array(self.current_img, self.img_label)
 
     def restore_blur_parametrs(self):
@@ -358,25 +372,26 @@ class WidgetGallery(QDialog):
         new_img_path = self.list_of_files[location]
         self.another_process.current_path = new_img_path
         print(new_img_path, location)
-        self.current_img = cv2.imread(new_img_path)
+        # self.current_img = cv2.imread(new_img_path)
+        self.current_img = np.asarray(Image.open(new_img_path).convert('RGB'), dtype='uint8')
         dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,change_dim_flag,dim, grayscale_flag = self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,change_dim_flag,dim,grayscale_flag)
 
         self.another_process.start()
         self.img_to_process = new_img_path
-        # self.current_img = Image.open(new_img_path)
-        self.display_image(new_img_path)
+        # self.current_img = Image.open_filedialog(new_img_path)
+        self.display_original_image(new_img_path)
 
     def itemselectionChanged(self):
         items = self.ImageShowerList.selectedItems()
         # print(str(items[0].text()))
 
     def thread_signal_connect(self):
-        self.clustering_thread.reduce_color_signal.connect(self.kmeans_done)
-        self.another_process.slic_thread_signal.connect(self.tread_done)
+        self.clustering_thread.reduce_color_signal.connect(self.kmeans_thread_complete)
+        self.another_process.slic_thread_signal.connect(self.slic_thread_completed)
         self.mixply_thread.mixply_thread_signal.connect(self.mixply_thread_complete)
-        # self.another_process.add_post.connect(self.tread_done)
-        # self.another_process.add_post.connect(self.tread_done)
+        # self.another_process.add_post.connect(self.slic_thread_completed)
+        # self.another_process.add_post.connect(self.slic_thread_completed)
 
     def change_saturation(self):
         blurFilters = BlurFilters()
@@ -387,7 +402,7 @@ class WidgetGallery(QDialog):
         self.render_img_from_array(self.current_img, self.img_label)
 
     def display_main_image_from_array(self, img):
-        height = self.topRightGroupBox.height()
+        height = self.main_img_group_box.height()
         final_img = QPixmap(self.numpy_to_pixmap(img))
         final_img = final_img.scaledToHeight(height - 10, mode=Qt.FastTransformation)
         self.img_label.setPixmap(final_img)
@@ -413,7 +428,7 @@ class WidgetGallery(QDialog):
 
     def sharpen_image(self):
         blurFilter = BlurFilters()
-        img = blurFilter.sharpen_imge(self.current_img, self.sharpen_slider.value())
+        img = blurFilter.sharpening_filter(self.current_img, self.sharpen_slider.value())
         self.current_img = img
         # self.display_main_image_from_array(self.current_img)
         self.render_img_from_array(self.current_img, self.img_label)
@@ -424,27 +439,22 @@ class WidgetGallery(QDialog):
         self.disable_vitals()
         # location = int(item.text())
         new_img_path = self.img_to_process
-        # self.current_img = np.asarray(Image.open())
+        # self.current_img = np.asarray(Image.open_filedialog())
         self.another_process.current_path = new_img_path
         dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag = self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag)
 
         self.another_process.start()
         self.img_to_process = new_img_path
-        self.display_image(new_img_path)
+        self.display_original_image(new_img_path)
 
     def process_after_blur(self):
         self.another_process.batch_process_flag = False
         self.disable_vitals()
-        # location = int(item.text())
-        # self.current_img = np.asarray(Image.open())
         self.another_process.current_path = self.img_to_process
         dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag = self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag)
-
         self.another_process.start()
-        # self.img_to_process = new_img_path
-        # self.display_image(new_img_path)
 
     def list_files_inside_folder(self, path_to_folder):
         # path_in_glob_format = path_to_folder + '/*' + '.png'
@@ -459,7 +469,7 @@ class WidgetGallery(QDialog):
 
         return list_of_files
 
-    def open(self):
+    def open_filedialog(self):
         # options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
         # files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
@@ -471,7 +481,7 @@ class WidgetGallery(QDialog):
             self.list_of_files = files
             self.img_to_process = files[0]
             self.current_img = np.asarray(Image.open(self.img_to_process).convert('RGB'))
-            # self.display_image(files[0])
+            # self.display_original_image(files[0])
             self.render_img_from_array(self.current_img, self.img_label)
             self.ImageShowerList.clear()
             for i,each in enumerate(files):
@@ -548,10 +558,10 @@ class WidgetGallery(QDialog):
     def disable_vitals(self):
         # self.processPushButton.setDisabled(True)
         # self.defaultPushButton.setDisabled(True)
-        self.topLeftGroupBox.setDisabled(True)
+        self.parameter_group_box.setDisabled(True)
 
     def enable_vitals(self):
-        self.topLeftGroupBox.setEnabled(True)
+        self.parameter_group_box.setEnabled(True)
 
     def changePalette(self):
         if (self.useStylePaletteCheckBox.isChecked()):
@@ -559,11 +569,11 @@ class WidgetGallery(QDialog):
         else:
             QApplication.setPalette(self.originalPalette)
 
-    def display_image(self, img_path):
+    def display_original_image(self, img_path):
         pixmap = QPixmap(img_path)
         self.img_label.adjustSize()
-        w = self.topRightGroupBox.width()
-        h = self.topRightGroupBox.height()
+        w = self.main_img_group_box.width()
+        h = self.main_img_group_box.height()
         # print(w,h)
         smaller_pixmap = pixmap.scaled(w-40,h-20,Qt.KeepAspectRatio, Qt.FastTransformation)
         self.img_label.setPixmap(smaller_pixmap)
@@ -586,7 +596,7 @@ class WidgetGallery(QDialog):
         else:
             self.resizefactor.setEnabled(False)
 
-    def process_all_images(self):
+    def batch_process_images(self):
         self.disable_vitals()
         dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag = self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value,
@@ -610,7 +620,7 @@ class WidgetGallery(QDialog):
         return len(img.getcolors())
 
     @QtCore.pyqtSlot(list)
-    def tread_done(self, slic_thread_list):
+    def slic_thread_completed(self, slic_thread_list):
         print(len(slic_thread_list), slic_thread_list)
         processing_img_path, output_path, dither_path, time, k_number, mixply_img_path = slic_thread_list[0], slic_thread_list[1], slic_thread_list[2], slic_thread_list[3], slic_thread_list[4], slic_thread_list[5]
 
@@ -623,16 +633,38 @@ class WidgetGallery(QDialog):
         else:
             self.time.setText('Time Taken to Process Image =' + time)
             self.current_output_path = output_path
-            self.update_img_after_thread(processing_img_path, output_path, dither_path, k_number, mixply_img_path)
+            self.update_img_after_slic_thread(processing_img_path, output_path, dither_path, k_number, mixply_img_path)
 
-    def update_img_after_thread(self, processing_img_path, output_path, reduced_path, k_number, mixply_img_path):
+    @QtCore.pyqtSlot(list)
+    def kmeans_thread_complete(self, kmeans_signal_list):
+        self.clustering_thread.terminate()
+        # print('Kmeans finised==', path)
+        w = self.main_img_group_box.width()
+        h = self.main_img_group_box.height()
+        img, path = kmeans_signal_list[0], kmeans_signal_list[1]
+        self.reduced_img_path = path
+        img = self.convert_from_pil_to_numpy(img)
+        img = self.numpy_to_pixmap(img)
+        pixmap_reducecolor = QPixmap(img)
+        reduced_pixmap = pixmap_reducecolor.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.reduced_color_img_lbl.setPixmap(reduced_pixmap)
+        self.reduced_number_of_color.setText('Number Of Colors in Image = ' + str(self.kmeans_color_slider.value()))
+
+    @QtCore.pyqtSlot(list)
+    def mixply_thread_complete(self, mixply_outputlist):
+        mix_ply_img = mixply_outputlist[0]
+        self.render_img_from_array(mix_ply_img, self.mixply_img_lbl)
+        self.render_color_number_from_img(mix_ply_img, self.mixply_color_number)
+        print('finished')
+
+    def update_img_after_slic_thread(self, processing_img_path, output_path, reduced_path, k_number, mixply_img_path):
         self.reduced_img_path = reduced_path
         main_img = QPixmap(processing_img_path)
         pixmap_output = QPixmap(output_path)
         pixmap_reduced = QPixmap(reduced_path)
         pixmap_mixply = QPixmap(mixply_img_path)
-        w = self.topRightGroupBox.width()
-        h = self.topRightGroupBox.height()
+        w = self.main_img_group_box.width()
+        h = self.main_img_group_box.height()
         mainsmaller_pixmap = main_img.scaledToHeight(400, Qt.FastTransformation)
         outputsmaller_pixmap = pixmap_output.scaledToHeight(400, Qt.FastTransformation)
         reducedsmaller_pixmap = pixmap_reduced.scaledToHeight(400, Qt.FastTransformation)
@@ -643,38 +675,16 @@ class WidgetGallery(QDialog):
         # reducedsmaller_pixmap = pixmap_reduced.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
 
         self.img_label.setPixmap(mainsmaller_pixmap)
-        self.segmented_img_label.setPixmap(outputsmaller_pixmap)
-        self.final_image_label.setPixmap(reducedsmaller_pixmap)
+        self.final_img_lbl.setPixmap(outputsmaller_pixmap)
+        self.reduced_color_img_lbl.setPixmap(reducedsmaller_pixmap)
         self.reduced_number_of_color.setText('Number Of Colors in Image = ' + str(self.number_of_color_in_img(reduced_path)))
-        self.mixply_img.setPixmap(mixply_img_pixmap)
+        self.mixply_img_lbl.setPixmap(mixply_img_pixmap)
         self.mixply_color_number.setText('Number Of Colors in Image = ' + str(self.number_of_color_in_img(mixply_img_path)))
-
-    @QtCore.pyqtSlot(list)
-    def kmeans_done(self, kmeans_signal_list):
-        self.clustering_thread.terminate()
-        # print('Kmeans finised==', path)
-        w = self.topRightGroupBox.width()
-        h = self.topRightGroupBox.height()
-        img, path = kmeans_signal_list[0], kmeans_signal_list[1]
-        self.reduced_img_path = path
-        img = self.convert_from_pil_to_numpy(img)
-        img = self.numpy_to_pixmap(img)
-        pixmap_reducecolor = QPixmap(img)
-        reduced_pixmap = pixmap_reducecolor.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.final_image_label.setPixmap(reduced_pixmap)
-        self.reduced_number_of_color.setText('Number Of Colors in Image = ' + str(self.kmeans_color_slider.value()))
-
-    @QtCore.pyqtSlot(list)
-    def mixply_thread_complete(self, mixply_outputlist):
-        mix_ply_img = mixply_outputlist[0]
-        self.render_img_from_array(mix_ply_img, self.mixply_img)
-        self.render_color_number_from_img(mix_ply_img, self.mixply_color_number)
-        print('finished')
 
     def render_img_from_array(self, img, place_holder):
         pixmap = QPixmap(self.numpy_to_pixmap(img))
-        h = self.topRightGroupBox.height()
-        w = self.topRightGroupBox.width()
+        h = self.main_img_group_box.height()
+        w = self.main_img_group_box.width()
         print('scaled to =', h)
         mainsmaller_pixmap = pixmap.scaled(w-5, h-10,Qt.KeepAspectRatio, Qt.FastTransformation)
         place_holder.setPixmap(mainsmaller_pixmap)
@@ -688,20 +698,6 @@ class WidgetGallery(QDialog):
         self.clustering_thread.final_img_path = self.current_output_path
         self.clustering_thread.number_of_cluster = self.kmeans_color_slider.value()
         self.clustering_thread.start()
-
-    def createImageShower(self):
-        self.ImageShower = QGroupBox("Loaded Images")
-        self.ImageShowerList = QListWidget()
-        self.ImageShowerList.setFocusPolicy(Qt.StrongFocus)
-        # self.ImageShowerList.itemClicked.connect(self.itemClicked)
-        self.ImageShowerList.currentItemChanged.connect(self.itemClicked)
-        self.ImageShowerList.doubleClicked.connect(self.itemDoubleClicked)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.ImageShowerList)
-        #
-        # layout.addStretch(1)
-        self.ImageShower.setLayout(layout)
 
     def info(self):
         print('Starting thread to Reduce Color == ', self.kmeans_color_slider.value())
@@ -762,7 +758,8 @@ class WorkerThread(QThread):
             for each in self.list_of_files:
                 try:
                     signal_list = []
-                    self.img_to_process = cv2.imread(each)
+                    # self.img_to_process = cv2.imread(each)
+                    self.img_to_process = np.asarray(Image.open(each).convert('RGB'), dtype='uint8')
                     output_path, dither_path, time, k_number, mixply_img_path = dither_algorithm.main(each, self.img_to_process, self.dither_flag,
                                                                            self.dither_color, self.number_of_segments,
                                                                            self.connectivity, self.compactness_value,

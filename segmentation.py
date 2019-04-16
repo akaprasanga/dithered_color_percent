@@ -21,20 +21,10 @@ class Segment:
         :return: segmented images with defined boundaries
         """
 
-        print(image.shape)
-
-        i = Image.fromarray(image)
-        i.save('input.png')
-
-        # if grayscale_flag == True:
-        #     image = np.dstack((image, image, image))
-        #     print(image.shape)
-
         image_r = image[:, :, :3]
         image_r = image_r.astype(float)
         segments_slic_r = slic(image_r, n_segments=segment_number, enforce_connectivity=connectivity, convert2lab=True,
                              multichannel=True, sigma=s, compactness=k)
-        print(np.unique(segments_slic_r))
 
         channel_one = np.zeros(segments_slic_r.shape, segments_slic_r.dtype)
         channel_two = segments_slic_r // 256

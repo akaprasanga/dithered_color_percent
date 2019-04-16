@@ -335,7 +335,7 @@ class MixPLy:
 
     # def call_mixply_function(self, number_of_colors, filename):
     #     start = time.time()
-    #     img = Image.open(filename).convert('RGB')
+    #     img = Image.open_filedialog(filename).convert('RGB')
     #     main_colors, remaining_colors = self.get_colors_from_img(img, number_of_main_colors=number_of_colors)
     #     mixed_ply_table = self.create_mix_ply_table(main_colors, 3)
     #     distance_table = self.create_distance_table(mixed_ply_table, remaining_colors)
@@ -453,8 +453,8 @@ class MixPLy:
 # if __name__ == '__main__':
 #     mixPly = MixPLy()
 #     filename = 'E:\Work\graph\s250-2False5c4Miami-Heat.processed.png'
-#     img = Image.open(filename).convert('HSV')
-#     i = Image.open(filename).convert('RGB')
+#     img = Image.open_filedialog(filename).convert('HSV')
+#     i = Image.open_filedialog(filename).convert('RGB')
 #     rgb_colors = i.getcolors()
 #     rgb_colors = [x[1] for x in rgb_colors]
 #

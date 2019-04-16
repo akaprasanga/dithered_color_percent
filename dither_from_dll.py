@@ -1,6 +1,8 @@
-import cv2
+
 
 class FunctionsFromDLL:
+
+
     def dither_image(self,filename, number, dir_path):
         import os
         import clr
@@ -37,10 +39,9 @@ class FunctionsFromDLL:
         clr.AddReference(utilities_path)
         from Utilities import ImageProcessing
         obj = ImageProcessing()
-        orig_file = cv2.imread(original_filename)
-        index_file = cv2.imread(index_filename)
-        print('Before going to replace color ', orig_file.shape, index_file.shape)
+        # orig_file = cv2.imread(original_filename)
+        # index_file = cv2.imread(index_filename)
+        # print('Before going to replace color ', orig_file.shape, index_file.shape)
         saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
         return saved_path
 
-# replace_mean_color(r'E:\Work\dithered_color_percent\replace_color\Threshold Revelima.png',r'E:\Work\dithered_color_percent\replace_color\temp.png', 'E:/Work/dithered_color_percent')
