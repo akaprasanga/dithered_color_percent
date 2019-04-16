@@ -11,7 +11,6 @@ import cv2
 from scipy.spatial import distance
 from os import walk
 import random
-import pyvips as vip
 import time
 from sklearn.cluster import KMeans
 from numba import types
@@ -47,21 +46,29 @@ class MixPLy:
         return webcolors.rgb_to_hex(triplet)
 
     def get_colors_from_img(self, filename, level):
-        img = Image.open(filename).convert('HSV')
+        img = Image.open(filename).convert('RGB')
         c = img.getcolors()
         length = len(c)
         colors = [x[1] for x in c]
-        colors_list=[]
+        colors_list = []
+        r_list = []
         for i in range(0, 3):
             sorted_h = sorted(colors, key=lambda tup: tup[i])
             colors_list.append(sorted_h[level])
             colors_list.append(sorted_h[(length-1)-level])
+            r_list.append(sorted_h[level:(length-1)-level])
 
-        print(level, (length-1)-level)
+        # print(level, (length-1)-level)
+        # print(r_list)
+        r_list = r_list[0]+r_list[1]+r_list[2]
+        r_list = list(dict.fromkeys(r_list))
+
+        # print('rlist = ', r_list)
+
         colors_list = list(set(colors_list))
         choosed_set = set(colors_list)
         remaining_colors = [x for x in colors if x not in choosed_set]
-
+        # print('remining = ',remaining_colors)
         return np.array(colors_list), np.array(remaining_colors)
 
     def multiply_all(self, l, factor):
@@ -119,119 +126,119 @@ class MixPLy:
         delta_e = delta_e_cie2000(color1_lab, color2_lab)
         return delta_e
 
-    def create_distance_table(self, mixed_ply_table, remaining_color_list):
-        distance_table = pd.DataFrame(columns=['Color-A', 'Color-A%', 'Color-B', 'Color-B%', 'Mixed-Color', 'Color-R', 'Distance'])
-        for each in remaining_color_list:
-            for index, row in mixed_ply_table.iterrows():
-                pd_rows = list(row.values)
-                mixed_color = pd_rows[-1]
-                distance = self.compute_ecludean_distance_of_tuple(mixed_color, each)
-                new_row = {'Color-A': pd_rows[0], 'Color-A%': pd_rows[1], 'Color-B': pd_rows[2], 'Color-B%': pd_rows[3], 'Mixed-Color': pd_rows[4], 'Color-R':each, 'Distance':distance}
-                distance_table = distance_table.append([new_row], ignore_index=True)
-        return  distance_table
+    # def create_distance_table(self, mixed_ply_table, remaining_color_list):
+    #     distance_table = pd.DataFrame(columns=['Color-A', 'Color-A%', 'Color-B', 'Color-B%', 'Mixed-Color', 'Color-R', 'Distance'])
+    #     for each in remaining_color_list:
+    #         for index, row in mixed_ply_table.iterrows():
+    #             pd_rows = list(row.values)
+    #             mixed_color = pd_rows[-1]
+    #             distance = self.compute_ecludean_distance_of_tuple(mixed_color, each)
+    #             new_row = {'Color-A': pd_rows[0], 'Color-A%': pd_rows[1], 'Color-B': pd_rows[2], 'Color-B%': pd_rows[3], 'Mixed-Color': pd_rows[4], 'Color-R':each, 'Distance':distance}
+    #             distance_table = distance_table.append([new_row], ignore_index=True)
+    #     return  distance_table
 
-    def visualize_combination(self, distance_table, number_of_values, filename):
-        list_of_pallates = []
-        sorted_df = distance_table.sort_values(by=['Distance']).head(number_of_values)
-        sorted_df = sorted_df.reset_index(drop=True)
-        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            print(sorted_df)
+    # def visualize_combination(self, distance_table, number_of_values, filename):
+    #     list_of_pallates = []
+    #     sorted_df = distance_table.sort_values(by=['Distance']).head(number_of_values)
+    #     sorted_df = sorted_df.reset_index(drop=True)
+    #     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #         print(sorted_df)
+    #
+    #     # fig = plt.figure()
+    #     # ax = fig.gca(projection='3d')
+    #     for index, row in sorted_df.iterrows():
+    #         img_1 = np.zeros((100, 100, 3), dtype='uint8')
+    #         img_2 = np.zeros((100, 100, 3), dtype='uint8')
+    #         img_3 = np.zeros((100, 100, 3), dtype='uint8')
+    #         img_4 = np.zeros((100, 100, 3), dtype='uint8')
+    #
+    #
+    #         row = list(row.values)
+    #         main_color_1 = row[0]
+    #         main_color_2 = row[2]
+    #         main_color_3 = row[5] # target color
+    #         main_color_4 = row[4] # created color using mixply
+    #         distance = row[6]
+    #         main_color_4 = tuple(int(round(ti)) for ti in main_color_4)
+    #
+    #
+    #         img_1[:, :, 0] = main_color_1[0]
+    #         img_1[:, :, 1] = main_color_1[1]
+    #         img_1[:, :, 2] = main_color_1[2]
+    #
+    #         img_2[:, :, 0] = main_color_2[0]
+    #         img_2[:, :, 1] = main_color_2[1]
+    #         img_2[:, :, 2] = main_color_2[2]
+    #
+    #         img_3[:, :, 0] = main_color_3[0]
+    #         img_3[:, :, 1] = main_color_3[1]
+    #         img_3[:, :, 2] = main_color_3[2]
+    #
+    #         img_4[:, :, 0] = main_color_4[0]
+    #         img_4[:, :, 1] = main_color_4[1]
+    #         img_4[:, :, 2] = main_color_4[2]
+    #         final = np.hstack((img_1, img_2, img_3, img_4))
+    #
+    #         font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+    #
+    #         cv2.putText(final, str(distance)[:6], (0, (final.shape[0]//2)-20), font, 1, (0, 0, 0), 1, cv2.LINE_AA)
+    #         final = cv2.line(final,(0, final.shape[0]-2), (final.shape[1], final.shape[0]), (0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+    #
+    #         list_of_pallates.append(final)
+    #         # plt.imsave(str(distance)+'.jpg', final)
+    #
+    #     # for i, each in enumerate(list_of_pallates):
+    #     f = np.vstack((list_of_pallates[0:]))
+    #     plt.imsave(str(1) + '.jpg', f)
 
-        # fig = plt.figure()
-        # ax = fig.gca(projection='3d')
-        for index, row in sorted_df.iterrows():
-            img_1 = np.zeros((100, 100, 3), dtype='uint8')
-            img_2 = np.zeros((100, 100, 3), dtype='uint8')
-            img_3 = np.zeros((100, 100, 3), dtype='uint8')
-            img_4 = np.zeros((100, 100, 3), dtype='uint8')
-
-
-            row = list(row.values)
-            main_color_1 = row[0]
-            main_color_2 = row[2]
-            main_color_3 = row[5] # target color
-            main_color_4 = row[4] # created color using mixply
-            distance = row[6]
-            main_color_4 = tuple(int(round(ti)) for ti in main_color_4)
-
-
-            img_1[:, :, 0] = main_color_1[0]
-            img_1[:, :, 1] = main_color_1[1]
-            img_1[:, :, 2] = main_color_1[2]
-
-            img_2[:, :, 0] = main_color_2[0]
-            img_2[:, :, 1] = main_color_2[1]
-            img_2[:, :, 2] = main_color_2[2]
-
-            img_3[:, :, 0] = main_color_3[0]
-            img_3[:, :, 1] = main_color_3[1]
-            img_3[:, :, 2] = main_color_3[2]
-
-            img_4[:, :, 0] = main_color_4[0]
-            img_4[:, :, 1] = main_color_4[1]
-            img_4[:, :, 2] = main_color_4[2]
-            final = np.hstack((img_1, img_2, img_3, img_4))
-
-            font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-
-            cv2.putText(final, str(distance)[:6], (0, (final.shape[0]//2)-20), font, 1, (0, 0, 0), 1, cv2.LINE_AA)
-            final = cv2.line(final,(0, final.shape[0]-2), (final.shape[1], final.shape[0]), (0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
-
-            list_of_pallates.append(final)
-            # plt.imsave(str(distance)+'.jpg', final)
-
-        # for i, each in enumerate(list_of_pallates):
-        f = np.vstack((list_of_pallates[0:]))
-        plt.imsave(str(1) + '.jpg', f)
-
-    def create_index_file(self, main_colors, remaining_colors, total_colors_num, distance_table, number_of_mixply_color):
-        sorted_df = distance_table.sort_values(by=['Distance']).head(number_of_mixply_color)
-        sorted_df = sorted_df.reset_index(drop=True)
-        # with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        #     print(sorted_df)
-
-        mixply_dict = {}
-        mean_dict = {}
-
-        for index, row in sorted_df.iterrows():
-            key, color1, color2, mixed_color = row['Color-R'], row['Color-A'], row['Color-B'], row['Mixed-Color']
-            if key not in mixply_dict:
-                mixply_dict[key] = [color1, color2, color2]
-            if key not in mean_dict:
-                mean_dict[key] = mixed_color
-
-        # for solid colors
-        # print('Mix ply Dict:', len(mixply_dict))
-        temp_list = main_colors.copy() + remaining_colors.copy()
-        for each in temp_list:
-            if each not in mixply_dict:
-                mixply_dict[each] = [each, each, each]
-            if each not in mean_dict:
-                mean_dict[each] = each
-        # print('Length final:', len(mixply_dict))
-        # print(mixply_dict)
-        return mixply_dict, mean_dict
+    # def create_index_file(self, main_colors, remaining_colors, total_colors_num, distance_table, number_of_mixply_color):
+    #     sorted_df = distance_table.sort_values(by=['Distance']).head(number_of_mixply_color)
+    #     sorted_df = sorted_df.reset_index(drop=True)
+    #     # with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #     #     print(sorted_df)
+    #
+    #     mixply_dict = {}
+    #     mean_dict = {}
+    #
+    #     for index, row in sorted_df.iterrows():
+    #         key, color1, color2, mixed_color = row['Color-R'], row['Color-A'], row['Color-B'], row['Mixed-Color']
+    #         if key not in mixply_dict:
+    #             mixply_dict[key] = [color1, color2, color2]
+    #         if key not in mean_dict:
+    #             mean_dict[key] = mixed_color
+    #
+    #     # for solid colors
+    #     # print('Mix ply Dict:', len(mixply_dict))
+    #     temp_list = main_colors.copy() + remaining_colors.copy()
+    #     for each in temp_list:
+    #         if each not in mixply_dict:
+    #             mixply_dict[each] = [each, each, each]
+    #         if each not in mean_dict:
+    #             mean_dict[each] = each
+    #     # print('Length final:', len(mixply_dict))
+    #     # print(mixply_dict)
+    #     return mixply_dict, mean_dict
 
     def difference_of_list(self, list1, list2):
         return list(set(list1) - set(list2))
 
-    def create_mapping_table(self, distance_table, main_color_list, remaining_color, distance_threshold):
-        sorted_df = distance_table.sort_values(by=['Distance'])
-        sorted_df = sorted_df.reset_index(drop=True)
-        # print(sorted_df)
-
-        replacing_color_dict = {}
-
-        # mapping solid colors
-        for i in remaining_color:
-            for j in main_color_list:
-                d = self.compute_ecludean_distance_of_tuple(i, j)
-                if d <= distance_threshold:
-                    replacing_color_dict[i] = [j, j, j]
-
-        # mapping mixply colors
-        list_of_solid_colors = list(replacing_color_dict.keys())
-        remaining_color = self.difference_of_list(remaining_color, list_of_solid_colors)
+    # def create_mapping_table(self, distance_table, main_color_list, remaining_color, distance_threshold):
+    #     sorted_df = distance_table.sort_values(by=['Distance'])
+    #     sorted_df = sorted_df.reset_index(drop=True)
+    #     # print(sorted_df)
+    #
+    #     replacing_color_dict = {}
+    #
+    #     # mapping solid colors
+    #     for i in remaining_color:
+    #         for j in main_color_list:
+    #             d = self.compute_ecludean_distance_of_tuple(i, j)
+    #             if d <= distance_threshold:
+    #                 replacing_color_dict[i] = [j, j, j]
+    #
+    #     # mapping mixply colors
+    #     list_of_solid_colors = list(replacing_color_dict.keys())
+    #     remaining_color = self.difference_of_list(remaining_color, list_of_solid_colors)
 
     def match_nearest_colors(self, image, distance_threshold):
         img = Image.fromarray(image.astype('uint8'))
@@ -301,52 +308,43 @@ class MixPLy:
             print('operation not required')
             return np.asarray(image)
 
-    def replace_with_mixed_color(self, filename, mean_color_dict):
-        img = vip.Image.new_from_file(filename)
-        img = img.flatten()
-        for k, v in mean_color_dict.items():
-            img = (img == k).ifthenelse(v, img)
-        img.write_to_file('vips.png')
+    # def replace_with_mixed_color(self, filename, mean_color_dict):
+    #     img = vip.Image.new_from_file(filename)
+    #     img = img.flatten()
+    #     for k, v in mean_color_dict.items():
+    #         img = (img == k).ifthenelse(v, img)
+    #     img.write_to_file('vips.png')
 
     def create_mixply_image(self, filename, replacing_dict):
-        # img = cv2.imread(filename)
-        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # color_list = []
         import time
         start = time.time()
-        picture = Image.open(filename).convert('HSV')
+        picture = Image.open(filename).convert('RGB')
         width, height = picture.size
         picture_pixmap = picture.load()
-        # print(replacing_dict[(11, 58, 221)])
 
         for x in range(0, width):
             for y in range(0, height):
                 current_color = picture_pixmap[x, y]
                 if current_color in replacing_dict:
                     picture_pixmap[x,y] = replacing_dict[current_color][random.randint(0, 2)]
-                # try:
-                #     picture_pixmap[x, y] = replacing_dict[current_color][random.randint(0, 2)]
-                # except KeyError:
-                #     pass
-                # picture.putpixel((x, y), color_list[random.randint[]])
 
         print('Time =:', time.time()-start)
         picture = picture.convert('RGB')
         picture.save('trail_mix.png')
         return np.asarray(picture)
 
-    def call_mixply_function(self, number_of_colors, filename):
-        start = time.time()
-        img = Image.open(filename).convert('RGB')
-        main_colors, remaining_colors = self.get_colors_from_img(img, number_of_main_colors=number_of_colors)
-        mixed_ply_table = self.create_mix_ply_table(main_colors, 3)
-        distance_table = self.create_distance_table(mixed_ply_table, remaining_colors)
-        replacing_dict, mean_dict = self.create_index_file(main_colors, remaining_colors,
-                                                             len(main_colors) + len(remaining_colors), distance_table,
-                                                             30)
-        mixed_ply_img = self.create_mixply_image(filename, replacing_dict)
-        print('Mixply Time:', time.time()-start)
-        return mixed_ply_img
+    # def call_mixply_function(self, number_of_colors, filename):
+    #     start = time.time()
+    #     img = Image.open(filename).convert('RGB')
+    #     main_colors, remaining_colors = self.get_colors_from_img(img, number_of_main_colors=number_of_colors)
+    #     mixed_ply_table = self.create_mix_ply_table(main_colors, 3)
+    #     distance_table = self.create_distance_table(mixed_ply_table, remaining_colors)
+    #     replacing_dict, mean_dict = self.create_index_file(main_colors, remaining_colors,
+    #                                                          len(main_colors) + len(remaining_colors), distance_table,
+    #                                                          30)
+    #     mixed_ply_img = self.create_mixply_image(filename, replacing_dict)
+    #     print('Mixply Time:', time.time()-start)
+    #     return mixed_ply_img
 
     def color_replacing_function(self, image, replacing_dict):
         img = Image.fromarray(image.astype('uint8'))
@@ -372,50 +370,50 @@ class MixPLy:
         img.save('reduced_near_colors.png')
         return np.asarray(img)
 
-    def plot_hue_and_value(self, list_of_hue, list_of_value, list_of_rgb, list_of_saturation, labels):
-        fig = plt.figure()
-        ax = fig.gca(projection='3d')
-        for i, val in enumerate(list_of_hue):
-            hex_color = self.get_hex_from_rgb(list_of_rgb[i])
-            ax.scatter(list_of_hue[i], list_of_value[i], list_of_saturation[i], c=hex_color, edgecolor=self.edge_color_dict[str(labels[i])] , linewidths= 2, s=80, label=labels[i])
-            ax.grid(color='#AFEEEE', linestyle='--', linewidth=0.5)
-        plt.xlabel('HUE')
-        plt.ylabel('VALUE / Lightness')
+    # def plot_hue_and_value(self, list_of_hue, list_of_value, list_of_rgb, list_of_saturation, labels):
+    #     fig = plt.figure()
+    #     ax = fig.gca(projection='3d')
+    #     for i, val in enumerate(list_of_hue):
+    #         hex_color = self.get_hex_from_rgb(list_of_rgb[i])
+    #         ax.scatter(list_of_hue[i], list_of_value[i], list_of_saturation[i], c=hex_color, edgecolor=self.edge_color_dict[str(labels[i])] , linewidths= 2, s=80, label=labels[i])
+    #         ax.grid(color='#AFEEEE', linestyle='--', linewidth=0.5)
+    #     plt.xlabel('HUE')
+    #     plt.ylabel('VALUE / Lightness')
 
-    def create_new_axes_for_HSV(self, hue_list, sat_list, value_list):
-        hmax, hmin = max(hue_list), min(hue_list)
-        smax, smin = max(sat_list), min(sat_list)
-        vmax, vmin = max(value_list), min(value_list)
-        h_interval = (hmax-hmin)/len(hue_list)
-        s_interval = (smax-smin)/len(sat_list)
-        v_interval = (vmax-vmin)/len(value_list)
-
-        print('hue max: ',hmax, 'Min : ',hmin, 'Interval :', h_interval)
-        print('sat max: ', smax, 'Min : ', smin, 'Interval :', s_interval)
-        print('value max: ', vmax, 'Min : ', vmin, 'Interval :', v_interval)
-
-        # for i in range(1, len(hue_list)+1):
-        #     print('Container ', i, '=', [hmin+h_interval*i, smin+s_interval*i, vmin+v_interval*i])
-        # h_array = np.true_divide(np.array(hue_list)-hmin, h_interval)
-        # s_array = np.true_divide(np.array(sat_list)-smin, s_interval)
-        # v_array = np.true_divide(np.array(value_list)-vmin, v_interval)
-        axis_interval = 64
-        cube_num = 256/axis_interval
-
-        h_array = np.true_divide(np.array(hue_list), axis_interval)
-        s_array = np.true_divide(np.array(sat_list), axis_interval)
-        v_array = np.true_divide(np.array(value_list), axis_interval)
-
-        normalized_into_coordinates = np.dstack((h_array, s_array, v_array)).astype('uint8').reshape(-1, 3)
-
-        named_number = np.zeros(normalized_into_coordinates.shape[0])
-        for i in range(0, normalized_into_coordinates.shape[0]):
-            # print(normalized_into_coordinates[i], normalized_into_coordinates[i, 1], normalized_into_coordinates[i,2])
-            named_number[i] = normalized_into_coordinates[i, 0]+normalized_into_coordinates[i, 1]*cube_num+normalized_into_coordinates[i, 2]*cube_num*cube_num
-
-        # cube_labels = np.mo
-        # print(named_number)
-        return list(h_array), list(s_array), list(v_array), named_number
+    # def create_new_axes_for_HSV(self, hue_list, sat_list, value_list):
+    #     hmax, hmin = max(hue_list), min(hue_list)
+    #     smax, smin = max(sat_list), min(sat_list)
+    #     vmax, vmin = max(value_list), min(value_list)
+    #     h_interval = (hmax-hmin)/len(hue_list)
+    #     s_interval = (smax-smin)/len(sat_list)
+    #     v_interval = (vmax-vmin)/len(value_list)
+    #
+    #     print('hue max: ',hmax, 'Min : ',hmin, 'Interval :', h_interval)
+    #     print('sat max: ', smax, 'Min : ', smin, 'Interval :', s_interval)
+    #     print('value max: ', vmax, 'Min : ', vmin, 'Interval :', v_interval)
+    #
+    #     # for i in range(1, len(hue_list)+1):
+    #     #     print('Container ', i, '=', [hmin+h_interval*i, smin+s_interval*i, vmin+v_interval*i])
+    #     # h_array = np.true_divide(np.array(hue_list)-hmin, h_interval)
+    #     # s_array = np.true_divide(np.array(sat_list)-smin, s_interval)
+    #     # v_array = np.true_divide(np.array(value_list)-vmin, v_interval)
+    #     axis_interval = 64
+    #     cube_num = 256/axis_interval
+    #
+    #     h_array = np.true_divide(np.array(hue_list), axis_interval)
+    #     s_array = np.true_divide(np.array(sat_list), axis_interval)
+    #     v_array = np.true_divide(np.array(value_list), axis_interval)
+    #
+    #     normalized_into_coordinates = np.dstack((h_array, s_array, v_array)).astype('uint8').reshape(-1, 3)
+    #
+    #     named_number = np.zeros(normalized_into_coordinates.shape[0])
+    #     for i in range(0, normalized_into_coordinates.shape[0]):
+    #         # print(normalized_into_coordinates[i], normalized_into_coordinates[i, 1], normalized_into_coordinates[i,2])
+    #         named_number[i] = normalized_into_coordinates[i, 0]+normalized_into_coordinates[i, 1]*cube_num+normalized_into_coordinates[i, 2]*cube_num*cube_num
+    #
+    #     # cube_labels = np.mo
+    #     # print(named_number)
+    #     return list(h_array), list(s_array), list(v_array), named_number
 
     def create_combination_and_distance_table(self, main_colors, remaining_colors):
         main_colors_Y = np.multiply(main_colors, 0.67)

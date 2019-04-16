@@ -23,6 +23,9 @@ class Segment:
 
         print(image.shape)
 
+        i = Image.fromarray(image)
+        i.save('input.png')
+
         # if grayscale_flag == True:
         #     image = np.dstack((image, image, image))
         #     print(image.shape)

@@ -118,7 +118,7 @@ class WidgetGallery(QDialog):
         self.kmeans_color_slider.setMaximum(64)
         self.kmeans_color_slider.setMinimum(2)
         self.kmeans_color_slider.setValue(36)
-        self.kmeans_color_slider.valueChanged.connect(self.value_change)
+        self.kmeans_color_slider.valueChanged.connect(self.reduce_color_final_img)
 
         delete_folder_push_button = QPushButton('Delete All Output Folders')
         delete_folder_push_button.clicked.connect(self.delete_folders)
@@ -213,6 +213,8 @@ class WidgetGallery(QDialog):
         self.sharpen_slider.setMaximum(3)
         # self.sharpen_slider.setTickInterval(1)
         # self.sharpen_slider.setSingleStep(1)
+        self.revert_blurred_img_btn = QPushButton('Revert to Original Image')
+        self.process_blurred_img = QPushButton('Process Image')
 
 
         grid_layout.addWidget(saturation_label, 0, 0)
@@ -221,6 +223,8 @@ class WidgetGallery(QDialog):
         grid_layout.addWidget(self.motion_blur_slider, 1, 1)
         grid_layout.addWidget(sharpen_label, 2, 0)
         grid_layout.addWidget(self.sharpen_slider, 2, 1)
+        grid_layout.addWidget(self.revert_blurred_img_btn, 3, 0)
+        grid_layout.addWidget(self.process_blurred_img, 3, 1)
 
         group_box.setLayout(grid_layout)
         return group_box
@@ -322,10 +326,25 @@ class WidgetGallery(QDialog):
         return second_vertical_box
 
     def connect_signals(self):
-        self.saturation_slider.valueChanged.connect(self.change_saturation)
-        self.motion_blur_slider.valueChanged.connect(self.motion_blur)
+        self.saturation_slider.sliderReleased.connect(self.change_saturation)
+        self.motion_blur_slider.sliderReleased.connect(self.motion_blur)
         self.sharpen_slider.valueChanged.connect(self.sharpen_image)
-        self.mixply_intensity_slider.valueChanged.connect(self.create_mixply_image)
+        self.mixply_intensity_slider.sliderReleased.connect(self.create_mixply_image)
+        self.mixply_color_spinbox.valueChanged.connect(self.value_change)
+        self.revert_blurred_img_btn.clicked.connect(self.revert_blurred_image)
+        self.process_blurred_img.clicked.connect(self.process_after_blur)
+        # self.mixply_color_spinbox..connect(self.create_mixply_image)
+
+    def revert_blurred_image(self):
+        self.restore_blur_parametrs()
+        # self.current_img = np.asarray(Image.open(self.img_to_process).convert('RGB'))
+        self.current_img = cv2.imread(self.img_to_process)
+        self.render_img_from_array(self.current_img, self.img_label)
+
+    def restore_blur_parametrs(self):
+        self.sharpen_slider.setValue(0)
+        self.motion_blur_slider.setValue(0)
+        self.saturation_slider.setValue(25)
 
     def itemClicked(self, item):
         self.another_process.batch_process_flag = False
@@ -359,17 +378,18 @@ class WidgetGallery(QDialog):
         # self.another_process.add_post.connect(self.tread_done)
         # self.another_process.add_post.connect(self.tread_done)
 
-    def change_saturation(self, filename):
+    def change_saturation(self):
         blurFilters = BlurFilters()
         slider_value = self.saturation_slider.value()
-        saturated_img = blurFilters.increase_saturation(self.img_to_process, 4*(slider_value/100))
+        saturated_img = blurFilters.increase_saturation(self.current_img, 4*(slider_value/100))
         self.current_img = saturated_img
-        self.display_main_image_from_array(saturated_img)
+        # self.display_main_image_from_array(saturated_img)
+        self.render_img_from_array(self.current_img, self.img_label)
 
     def display_main_image_from_array(self, img):
         height = self.topRightGroupBox.height()
         final_img = QPixmap(self.numpy_to_pixmap(img))
-        final_img = final_img.scaledToHeight(height - 20, mode=Qt.FastTransformation)
+        final_img = final_img.scaledToHeight(height - 10, mode=Qt.FastTransformation)
         self.img_label.setPixmap(final_img)
 
     def create_mixply_image(self):
@@ -387,15 +407,16 @@ class WidgetGallery(QDialog):
 
     def motion_blur(self):
         blurFilters = BlurFilters()
-        img = blurFilters.motion_blur(self.img_to_process, self.motion_blur_slider.value())
+        img = blurFilters.motion_blur(self.current_img, self.motion_blur_slider.value())
         self.current_img = img
         self.display_main_image_from_array(self.current_img)
 
     def sharpen_image(self):
         blurFilter = BlurFilters()
-        img = blurFilter.sharpen_imge(self.img_to_process, self.sharpen_slider.value())
+        img = blurFilter.sharpen_imge(self.current_img, self.sharpen_slider.value())
         self.current_img = img
-        self.display_main_image_from_array(self.current_img)
+        # self.display_main_image_from_array(self.current_img)
+        self.render_img_from_array(self.current_img, self.img_label)
 
     def itemDoubleClicked(self, column_no):
 
@@ -403,6 +424,7 @@ class WidgetGallery(QDialog):
         self.disable_vitals()
         # location = int(item.text())
         new_img_path = self.img_to_process
+        # self.current_img = np.asarray(Image.open())
         self.another_process.current_path = new_img_path
         dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag = self.get_status()
         self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag)
@@ -410,6 +432,19 @@ class WidgetGallery(QDialog):
         self.another_process.start()
         self.img_to_process = new_img_path
         self.display_image(new_img_path)
+
+    def process_after_blur(self):
+        self.another_process.batch_process_flag = False
+        self.disable_vitals()
+        # location = int(item.text())
+        # self.current_img = np.asarray(Image.open())
+        self.another_process.current_path = self.img_to_process
+        dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag = self.get_status()
+        self.set_status_to_thread(dither_flag, dither_color, number_of_segments, sigma_value, compactness_value, color_pocket_number, connectivity, resize_flag, resize_factor,reduce_color_number,dim_change_flag,dim, grayscale_flag)
+
+        self.another_process.start()
+        # self.img_to_process = new_img_path
+        # self.display_image(new_img_path)
 
     def list_files_inside_folder(self, path_to_folder):
         # path_in_glob_format = path_to_folder + '/*' + '.png'
@@ -435,7 +470,9 @@ class WidgetGallery(QDialog):
             self.list_of_files.clear()
             self.list_of_files = files
             self.img_to_process = files[0]
-            self.display_image(files[0])
+            self.current_img = np.asarray(Image.open(self.img_to_process).convert('RGB'))
+            # self.display_image(files[0])
+            self.render_img_from_array(self.current_img, self.img_label)
             self.ImageShowerList.clear()
             for i,each in enumerate(files):
                 itm = QListWidgetItem(str(i))
@@ -506,6 +543,7 @@ class WidgetGallery(QDialog):
         self.another_process.change_dim_flag = change_dim_flag
         self.another_process.dim = dim
         self.another_process.grayscale_flag = grayscale_flag
+        self.restore_blur_parametrs()
 
     def disable_vitals(self):
         # self.processPushButton.setDisabled(True)
@@ -636,7 +674,9 @@ class WidgetGallery(QDialog):
     def render_img_from_array(self, img, place_holder):
         pixmap = QPixmap(self.numpy_to_pixmap(img))
         h = self.topRightGroupBox.height()
-        mainsmaller_pixmap = pixmap.scaledToHeight(h-10, Qt.FastTransformation)
+        w = self.topRightGroupBox.width()
+        print('scaled to =', h)
+        mainsmaller_pixmap = pixmap.scaled(w-5, h-10,Qt.KeepAspectRatio, Qt.FastTransformation)
         place_holder.setPixmap(mainsmaller_pixmap)
 
     def render_color_number_from_img(self, img, place_holder):
@@ -676,8 +716,8 @@ class WidgetGallery(QDialog):
     def timerEvent(self, event):
         self.killTimer(self.timer_id)
         self.timer_id = -1
-        self.info()
-        self.reduce_color_final_img()
+        # self.info()
+        self.create_mixply_image()
 
     def disable_dimension(self):
         if self.resize_check_box.isChecked():
@@ -688,7 +728,7 @@ class WidgetGallery(QDialog):
             self.height_input.setEnabled(False)
 
     def delete_folders(self):
-        output_folders = ['A_900X1200', 'A_DITHERED','A_Grayscaled','A_OUTPUT', 'A_REDUCE_COLOR','A_SEGMENTED', 'A_STICHED_OUTPUT','A_UPSCALED_INPUT']
+        output_folders = ['A_MIXEDPLY_OUTPUT', 'A_DITHERED', 'A_Grayscaled', 'A_OUTPUT', 'A_REDUCE_COLOR', 'A_SEGMENTED', 'A_STICHED_OUTPUT','A_UPSCALED_INPUT']
         for each in output_folders:
             shutil.rmtree(each, ignore_errors=True)
 
@@ -807,7 +847,7 @@ class MixplyThread(QThread):
     @QtCore.pyqtSlot()
     def run(self):
         img_list = []
-        print('ready for mixply')
+        print('Level = ', self.level_of_mixply, 'Colors =', self.mixply_colors)
         mixPly = MixPLy()
         main_colors, remaining_colors = mixPly.get_colors_from_img(self.image_path, self.level_of_mixply)
         mix_ply_list = mixPly.create_combination_and_distance_table(main_colors, remaining_colors)

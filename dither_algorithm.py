@@ -146,12 +146,15 @@ def get_max_value_from_dict(dictionary):
 def main(filename, img_to_process, dither_flag, dither_color, segment_number, connectivity, compactness, sigma, color_pockets, resize_flag, resize_factor, reduce_color_number, dim_change_flag, dim, grayscale_flag):
     print('Processing started ==', filename)
     # print(img_to_process)
+    ii = Image.fromarray(img_to_process)
+    ii.save('ready.png')
     dir_path = os.getcwd()
     dir_path = dir_path.replace('\\', '/')
     actual_name = os.path.splitext(filename)[0]
     actual_name = actual_name.split('/')
     actual_name = actual_name[len(actual_name) - 1]
     original_without_dither = cv2.imread(filename)
+
 
     if grayscale_flag == True:
         # im = cv2.imread(filename, 0)

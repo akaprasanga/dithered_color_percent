@@ -11,13 +11,13 @@ class BlurFilters:
         pass
 
     def sharpen_imge(self, filename, value):
-        # img = Image.open(filename).convert('RGB')
-        # img = np.asarray(img)
-        img = cv2.imread(filename)
+
+        img = cv2.cvtColor(filename, cv2.COLOR_RGB2BGR)
+        # img = cv2.imread(filename)
 
 
         if value == 0:
-            return img
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if value == 1:
             kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
             img2 = cv2.filter2D(img, -1, kernel)
@@ -29,12 +29,13 @@ class BlurFilters:
         elif value == 3:
             kernel = np.array([[-2, -2, -2], [-2, 32, -2], [-2, -2, -2]])
             img2 = cv2.filter2D(img, -1, kernel)
-        return img2
+        return cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 
     def motion_blur(self, filename, scale=20):
-        img = Image.open(filename).convert('RGB')
-        img = np.asarray(img)
-        if scale == 0:
+        # img = Image.open(filename).convert('RGB')
+        # img = np.asarray(img)
+        img = filename
+        if scale <= 2:
             return img
 
         size = int(img.shape[1] * (scale/100))
@@ -46,7 +47,9 @@ class BlurFilters:
         return output
 
     def increase_saturation(self, filename, scale):
-        img = Image.open(filename).convert('RGB')
+        # img = Image.open(filename).convert('RGB')
+        img = filename
+        img = Image.fromarray(img.astype('uint8'))
         converter = ImageEnhance.Color(img)
         img2 = converter.enhance(scale)
         img2 = np.asarray(img2)
