@@ -45,8 +45,17 @@ class MixPLy:
         # print(triplet)
         return webcolors.rgb_to_hex(triplet)
 
-    def get_colors_from_img(self, filename, level):
-        img = Image.open(filename).convert('RGB')
+    def open_image_in_lab(self, filename):
+        from skimage import io, color
+        rgb = io.imread(filename)
+        lab = color.rgb2lab(rgb)
+        return Image.fromarray(lab.astype('uint8'))
+    def get_colors_from_img(self, filename, level, color_space, step_size):
+        img = None
+        if color_space == 'LAB':
+            img = self.open_image_in_lab(filename)
+        else:
+            img = Image.open(filename).convert(color_space)
         c = img.getcolors()
         length = len(c)
         colors = [x[1] for x in c]
@@ -54,9 +63,9 @@ class MixPLy:
         r_list = []
         for i in range(0, 3):
             sorted_h = sorted(colors, key=lambda tup: tup[i])
-            colors_list.append(sorted_h[level])
-            colors_list.append(sorted_h[(length-1)-level])
-            r_list.append(sorted_h[level:(length-1)-level])
+            colors_list.append(sorted_h[step_size*level])
+            colors_list.append(sorted_h[(length-1)-step_size*level])
+            r_list.append(sorted_h[step_size*level:(length-1)-step_size*level])
 
         # print(level, (length-1)-level)
         # print(r_list)
@@ -69,6 +78,8 @@ class MixPLy:
         choosed_set = set(colors_list)
         remaining_colors = [x for x in colors if x not in choosed_set]
         # print('remining = ',remaining_colors)
+        print('Position = ', step_size*level , ', ', (length-1)-step_size*level)
+        print('List of Main Colors for mixply', colors_list)
         return np.array(colors_list), np.array(remaining_colors)
 
     def multiply_all(self, l, factor):
@@ -266,7 +277,8 @@ class MixPLy:
                 replacing_candidate_dict[total_color[i]] = total_color[index]
 
         print(len(replacing_candidate_dict))
-        return replacing_candidate_dict
+        replaced_img = self.color_replacing_function(image, replacing_candidate_dict)
+        return replaced_img
 
     def remove_less_dominant_color(self, image, percentage_distn):
         image = Image.fromarray(image.astype('uint8'))
@@ -308,17 +320,14 @@ class MixPLy:
             print('operation not required')
             return np.asarray(image)
 
-    # def replace_with_mixed_color(self, filename, mean_color_dict):
-    #     img = vip.Image.new_from_file(filename)
-    #     img = img.flatten()
-    #     for k, v in mean_color_dict.items():
-    #         img = (img == k).ifthenelse(v, img)
-    #     img.write_to_file('vips.png')
-
-    def create_mixply_image(self, filename, replacing_dict):
+    def create_mixply_image(self, filename, replacing_dict, color_space):
         import time
         start = time.time()
-        picture = Image.open(filename).convert('RGB')
+        picture = None
+        if color_space == 'LAB':
+            picture = self.open_image_in_lab(filename)
+        else:
+            picture = Image.open(filename).convert(color_space)
         width, height = picture.size
         picture_pixmap = picture.load()
 
@@ -332,19 +341,6 @@ class MixPLy:
         picture = picture.convert('RGB')
         picture.save('trail_mix.png')
         return np.asarray(picture)
-
-    # def call_mixply_function(self, number_of_colors, filename):
-    #     start = time.time()
-    #     img = Image.open_filedialog(filename).convert('RGB')
-    #     main_colors, remaining_colors = self.get_colors_from_img(img, number_of_main_colors=number_of_colors)
-    #     mixed_ply_table = self.create_mix_ply_table(main_colors, 3)
-    #     distance_table = self.create_distance_table(mixed_ply_table, remaining_colors)
-    #     replacing_dict, mean_dict = self.create_index_file(main_colors, remaining_colors,
-    #                                                          len(main_colors) + len(remaining_colors), distance_table,
-    #                                                          30)
-    #     mixed_ply_img = self.create_mixply_image(filename, replacing_dict)
-    #     print('Mixply Time:', time.time()-start)
-    #     return mixed_ply_img
 
     def color_replacing_function(self, image, replacing_dict):
         img = Image.fromarray(image.astype('uint8'))
@@ -370,52 +366,8 @@ class MixPLy:
         img.save('reduced_near_colors.png')
         return np.asarray(img)
 
-    # def plot_hue_and_value(self, list_of_hue, list_of_value, list_of_rgb, list_of_saturation, labels):
-    #     fig = plt.figure()
-    #     ax = fig.gca(projection='3d')
-    #     for i, val in enumerate(list_of_hue):
-    #         hex_color = self.get_hex_from_rgb(list_of_rgb[i])
-    #         ax.scatter(list_of_hue[i], list_of_value[i], list_of_saturation[i], c=hex_color, edgecolor=self.edge_color_dict[str(labels[i])] , linewidths= 2, s=80, label=labels[i])
-    #         ax.grid(color='#AFEEEE', linestyle='--', linewidth=0.5)
-    #     plt.xlabel('HUE')
-    #     plt.ylabel('VALUE / Lightness')
-
-    # def create_new_axes_for_HSV(self, hue_list, sat_list, value_list):
-    #     hmax, hmin = max(hue_list), min(hue_list)
-    #     smax, smin = max(sat_list), min(sat_list)
-    #     vmax, vmin = max(value_list), min(value_list)
-    #     h_interval = (hmax-hmin)/len(hue_list)
-    #     s_interval = (smax-smin)/len(sat_list)
-    #     v_interval = (vmax-vmin)/len(value_list)
-    #
-    #     print('hue max: ',hmax, 'Min : ',hmin, 'Interval :', h_interval)
-    #     print('sat max: ', smax, 'Min : ', smin, 'Interval :', s_interval)
-    #     print('value max: ', vmax, 'Min : ', vmin, 'Interval :', v_interval)
-    #
-    #     # for i in range(1, len(hue_list)+1):
-    #     #     print('Container ', i, '=', [hmin+h_interval*i, smin+s_interval*i, vmin+v_interval*i])
-    #     # h_array = np.true_divide(np.array(hue_list)-hmin, h_interval)
-    #     # s_array = np.true_divide(np.array(sat_list)-smin, s_interval)
-    #     # v_array = np.true_divide(np.array(value_list)-vmin, v_interval)
-    #     axis_interval = 64
-    #     cube_num = 256/axis_interval
-    #
-    #     h_array = np.true_divide(np.array(hue_list), axis_interval)
-    #     s_array = np.true_divide(np.array(sat_list), axis_interval)
-    #     v_array = np.true_divide(np.array(value_list), axis_interval)
-    #
-    #     normalized_into_coordinates = np.dstack((h_array, s_array, v_array)).astype('uint8').reshape(-1, 3)
-    #
-    #     named_number = np.zeros(normalized_into_coordinates.shape[0])
-    #     for i in range(0, normalized_into_coordinates.shape[0]):
-    #         # print(normalized_into_coordinates[i], normalized_into_coordinates[i, 1], normalized_into_coordinates[i,2])
-    #         named_number[i] = normalized_into_coordinates[i, 0]+normalized_into_coordinates[i, 1]*cube_num+normalized_into_coordinates[i, 2]*cube_num*cube_num
-    #
-    #     # cube_labels = np.mo
-    #     # print(named_number)
-    #     return list(h_array), list(s_array), list(v_array), named_number
-
     def create_combination_and_distance_table(self, main_colors, remaining_colors):
+        remaining_colors = np.array(remaining_colors)
         main_colors_Y = np.multiply(main_colors, 0.67)
         main_colors_X = np.multiply(main_colors, 0.33)
         combination_table = np.zeros((main_colors.shape[0], main_colors.shape[0], 3))
@@ -433,6 +385,7 @@ class MixPLy:
             distance_table[:, :, :] = remaining_colors[i]
 
             distance = np.linalg.norm(combination_table - distance_table, axis=2)
+            distance[np.diag_indices_from(distance)] = 1000
             index = np.where(distance == distance.min())
             y = index[0][0]
             x = index[1][0]
@@ -443,6 +396,7 @@ class MixPLy:
         return replacing_list
 
     def sort_and_pick(self, mix_ply_list, number_to_replace):
+
         required_list = mix_ply_list[:number_to_replace]
         # print(required_list)
         replacing_dict = {}
@@ -450,24 +404,34 @@ class MixPLy:
             replacing_dict[tuple(each[0])] = tuple((tuple(each[2]), tuple(each[3]), tuple(each[4])))
         return replacing_dict
 
+    def one_color_at_atime(self, color_list, number_of_colors):
+        replacing_list = []
+        colors_to_be_replaced = []
+        for i in range(0, number_of_colors):
+            color_list = self.difference_of_list(color_list, colors_to_be_replaced)
+
+            selected_one_color = [(np.array([0, 0, 0]), 1000, np.array([0, 0, 0]), np.array([0, 0, 0]), np.array([0, 0, 0]))]
+            for i,each in enumerate(color_list):
+                l = []
+                l.append(color_list[i])
+                main_colors = color_list[:i]+color_list[i+1:]
+                probable_list = self.create_combination_and_distance_table(np.array(main_colors), np.array(l))
+                if probable_list[0][1] < selected_one_color[0][1]:
+                    selected_one_color = probable_list
+            replacing_list.append(selected_one_color)
+            colors_to_be_replaced.append(tuple(selected_one_color[0][0]))
+
+
+        replacing_dict = {}
+        for each in replacing_list:
+            replacing_dict[tuple(each[0][0])] = tuple((tuple(each[0][2]), tuple(each[0][3]), tuple(each[0][4])))
+        return replacing_dict
+
 # if __name__ == '__main__':
 #     mixPly = MixPLy()
 #     filename = 'E:\Work\graph\s250-2False5c4Miami-Heat.processed.png'
-#     img = Image.open_filedialog(filename).convert('HSV')
-#     i = Image.open_filedialog(filename).convert('RGB')
-#     rgb_colors = i.getcolors()
-#     rgb_colors = [x[1] for x in rgb_colors]
-#
-#     c = img.getcolors()
-#     total_color_number = len(c)
-#     total_colors = [x[1] for x in c]
-#
-#     hue_list = [x[0] for x in total_colors]
-#     sat_list = [x[1] for x in total_colors]
-#     value_list = [x[2] for x in total_colors]
-#
-#     main_colors, remaining_colors = mixPly.get_colors_from_img(filename, 0)
-#     mix_ply_list = mixPly.create_combination_and_distance_table(main_colors, remaining_colors)
-#     replacing_dict = mixPly.sort_and_pick(mix_ply_list, number_to_replace=2)
-#     mix_ply_img = mixPly.create_mixply_image(filename, replacing_dict)
-
+#     img = Image.open(filename).convert('HSV')
+#     colors = img.getcolors()
+#     colors = [x[1] for x in colors]
+#     replacing_dict = mixPly.one_color_at_atime(colors, 4)
+#     print('hello')

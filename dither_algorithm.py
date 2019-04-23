@@ -220,16 +220,23 @@ def main(filename, img_to_process, dither_flag, dither_color, segment_number, co
     color_reduce_time2 = time.time()
     reduced_color_path = dllFunctions.reduce_color(output_img_path, reduce_color_number, dir_path)
 
+    mapped_nearest_colors = mixPly.match_nearest_colors(np.asarray(Image.open(reduced_color_path).convert('RGB')), 12)
+    mapped_nearest_colors = Image.fromarray(mapped_nearest_colors)
+    mapped_nearest_colors.save(reduced_color_path)
+
     mixply_img_path  = 'A_MIXEDPLY_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name
     if not os.path.exists('A_MIXEDPLY_OUTPUT'):
         os.makedirs('A_MIXEDPLY_OUTPUT')
 
+
+
     print('Dll Kmeans time = ', time.time() - color_reduce_time2)
-    joined_img = np.hstack((original_without_dither, color_replaced_r, color_replaced_r))
+    joined_img = np.hstack((original_without_dither, color_replaced_r, mapped_nearest_colors))
     if not os.path.exists('A_STICHED_OUTPUT'):
         os.makedirs('A_STICHED_OUTPUT')
     joined_img = Image.fromarray(joined_img)
     joined_img.save('A_STICHED_OUTPUT/s' + str(segment_number) + '-' + str(sigma) + str(connectivity) + str(compactness) + 'c' + str(color_pockets) + name)
+
 
     return output_img_path, reduced_color_path, str(time.time()-start), reduce_color_number, reduced_color_path
 

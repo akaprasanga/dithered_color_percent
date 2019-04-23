@@ -15,7 +15,7 @@ num_histogram_bins = 5 # number of histogram bins
 height, width, channels = converted_img.shape
 # seeds = cv2.ximgproc.createSuperpixelSEEDS(width, height, channels, num_superpixels, num_levels, prior, num_histogram_bins)
 slic = cv2.ximgproc.createSuperpixelSLIC(img, 101, 50, 0)
-slic._SuperpixelSplit()
+# slic._SuperpixelSplit()
 # print(slic.dtype)
 # mask  = slic.getLabelContourMask(True)
 # cv2.imwrite('slic.jpg', mask)

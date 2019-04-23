@@ -27,7 +27,7 @@ class WidgetGallery(QDialog):
         super(WidgetGallery, self).__init__(parent)
 
         self.originalPalette = QApplication.palette()
-        self.another_process = WorkerThread()
+        self.another_process = SlicWorkerThread()
         self.clustering_thread = Kmeans()
         self.delay_thread = SleepThread()
         self.mixply_thread = MixplyThread()
@@ -247,6 +247,13 @@ class WidgetGallery(QDialog):
         mixply_groupbox = QGroupBox('Mixply Section')
         grid_layout = QGridLayout()
 
+        self.color_space_selection = QComboBox()
+        self.color_space_selection.addItem('HSV')
+        self.color_space_selection.addItem('RGB')
+        self.color_space_selection.addItem('LAB')
+        self.mixply_intensity_stepsize_spinbox = QSpinBox()
+        self.mixply_intensity_stepsize_spinbox.setMinimum(1)
+        mixply_intensity_stepsize_lbl = QLabel('StepSize for Intensity')
         mixply_intensit_label = QLabel("Intensity of Mixply")
         self.mixply_intensity_slider = QSlider(Qt.Horizontal)
         self.mixply_intensity_slider.setMinimum(0)
@@ -260,10 +267,13 @@ class WidgetGallery(QDialog):
         self.mixply_color_spinbox = QSpinBox()
         self.mixply_color_spinbox.setMaximum(36)
 
-        grid_layout.addWidget(mixply_intensit_label, 0,0)
-        grid_layout.addWidget(self.mixply_intensity_slider, 0,1)
-        grid_layout.addWidget(mixply_color_label, 1, 0)
-        grid_layout.addWidget(self.mixply_color_spinbox, 1, 1)
+        grid_layout.addWidget(self.color_space_selection, 0, 0)
+        grid_layout.addWidget(mixply_intensity_stepsize_lbl, 1, 0)
+        grid_layout.addWidget(self.mixply_intensity_stepsize_spinbox, 1, 1)
+        grid_layout.addWidget(mixply_intensit_label, 2,0)
+        grid_layout.addWidget(self.mixply_intensity_slider, 2,1)
+        grid_layout.addWidget(mixply_color_label, 3, 0)
+        grid_layout.addWidget(self.mixply_color_spinbox, 3, 1)
 
         mixply_groupbox.setLayout(grid_layout)
         return mixply_groupbox
@@ -344,6 +354,8 @@ class WidgetGallery(QDialog):
         self.motion_blur_slider.sliderReleased.connect(self.motion_blur)
         self.sharpen_slider.valueChanged.connect(self.sharpen_image)
         self.mixply_intensity_slider.sliderReleased.connect(self.create_mixply_image)
+        self.mixply_intensity_stepsize_spinbox.valueChanged.connect(self.create_mixply_image)
+        self.color_space_selection.currentTextChanged.connect(self.create_mixply_image)
         self.mixply_color_spinbox.valueChanged.connect(self.value_change)
         self.revert_blurred_img_btn.clicked.connect(self.revert_blurred_image)
         self.process_blurred_img.clicked.connect(self.process_after_blur)
@@ -412,6 +424,8 @@ class WidgetGallery(QDialog):
         self.mixply_thread.image_path = self.reduced_img_path
         self.mixply_thread.level_of_mixply = 5-int(self.mixply_intensity_slider.value())//20
         self.mixply_thread.mixply_colors = int(self.mixply_color_spinbox.value())
+        self.mixply_thread.intensity_step_size  = int(self.mixply_intensity_stepsize_spinbox.value())
+        self.mixply_thread.color_selection_space = str(self.color_space_selection.currentText())
         self.mixply_thread.start()
 
     def numpy_to_pixmap(self, img):
@@ -655,7 +669,7 @@ class WidgetGallery(QDialog):
         mix_ply_img = mixply_outputlist[0]
         self.render_img_from_array(mix_ply_img, self.mixply_img_lbl)
         self.render_color_number_from_img(mix_ply_img, self.mixply_color_number)
-        print('finished')
+        # print('finished')
 
     def update_img_after_slic_thread(self, processing_img_path, output_path, reduced_path, k_number, mixply_img_path):
         self.reduced_img_path = reduced_path
@@ -663,16 +677,14 @@ class WidgetGallery(QDialog):
         pixmap_output = QPixmap(output_path)
         pixmap_reduced = QPixmap(reduced_path)
         pixmap_mixply = QPixmap(mixply_img_path)
-        w = self.main_img_group_box.width()
-        h = self.main_img_group_box.height()
-        mainsmaller_pixmap = main_img.scaledToHeight(400, Qt.FastTransformation)
-        outputsmaller_pixmap = pixmap_output.scaledToHeight(400, Qt.FastTransformation)
-        reducedsmaller_pixmap = pixmap_reduced.scaledToHeight(400, Qt.FastTransformation)
-        mixply_img_pixmap = pixmap_mixply.scaledToHeight(400, Qt.FastTransformation)
+        screen = app.primaryScreen()
+        h = screen.size().height()
+        w = screen.size().width()
+        mainsmaller_pixmap = main_img.scaledToHeight(h//2.75, Qt.FastTransformation)
+        outputsmaller_pixmap = pixmap_output.scaledToHeight(h//2.75, Qt.FastTransformation)
+        reducedsmaller_pixmap = pixmap_reduced.scaledToHeight(h//2.75, Qt.FastTransformation)
+        mixply_img_pixmap = pixmap_mixply.scaledToHeight(h//2.75, Qt.FastTransformation)
 
-        # mainsmaller_pixmap = main_img.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
-        # outputsmaller_pixmap = pixmap_output.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
-        # reducedsmaller_pixmap = pixmap_reduced.scaled(w - 40, h - 20, Qt.KeepAspectRatio, Qt.FastTransformation)
 
         self.img_label.setPixmap(mainsmaller_pixmap)
         self.final_img_lbl.setPixmap(outputsmaller_pixmap)
@@ -685,7 +697,6 @@ class WidgetGallery(QDialog):
         pixmap = QPixmap(self.numpy_to_pixmap(img))
         h = self.main_img_group_box.height()
         w = self.main_img_group_box.width()
-        print('scaled to =', h)
         mainsmaller_pixmap = pixmap.scaled(w-5, h-10,Qt.KeepAspectRatio, Qt.FastTransformation)
         place_holder.setPixmap(mainsmaller_pixmap)
 
@@ -706,7 +717,7 @@ class WidgetGallery(QDialog):
         if self.timer_id != -1:
             self.killTimer(self.timer_id)
 
-        self.timer_id = self.startTimer(1500)
+        self.timer_id = self.startTimer(500)
         # print('changed == ', self.kmeans_color_slider.value())
 
     def timerEvent(self, event):
@@ -729,11 +740,11 @@ class WidgetGallery(QDialog):
             shutil.rmtree(each, ignore_errors=True)
 
 
-class WorkerThread(QThread):
+class SlicWorkerThread(QThread):
     slic_thread_signal = pyqtSignal(list)
 
     def __init__(self, parent=None):
-        super(WorkerThread, self).__init__(parent)
+        super(SlicWorkerThread, self).__init__(parent)
         self.current_path = ''
         self.img_to_process = None
         self.dither_flag = False
@@ -840,16 +851,22 @@ class MixplyThread(QThread):
         self.img_to_process = None
         self.level_of_mixply = 0
         self.mixply_colors = 5
+        self.color_selection_space = ''
+        self.intensity_step_size = 1
 
     @QtCore.pyqtSlot()
     def run(self):
         img_list = []
-        print('Level = ', self.level_of_mixply, 'Colors =', self.mixply_colors)
+        # print('Level = ', self.level_of_mixply, 'Colors =', self.mixply_colors)
         mixPly = MixPLy()
-        main_colors, remaining_colors = mixPly.get_colors_from_img(self.image_path, self.level_of_mixply)
-        mix_ply_list = mixPly.create_combination_and_distance_table(main_colors, remaining_colors)
-        replacing_dict = mixPly.sort_and_pick(mix_ply_list, number_to_replace=self.mixply_colors)
-        mix_ply_img = mixPly.create_mixply_image(self.image_path, replacing_dict)
+        # main_colors, remaining_colors = mixPly.get_colors_from_img(self.image_path, self.level_of_mixply, self.color_selection_space, self.intensity_step_size)
+        # mix_ply_list = mixPly.create_combination_and_distance_table(main_colors, remaining_colors)
+        # replacing_dict = mixPly.sort_and_pick(mix_ply_list, number_to_replace=self.mixply_colors)
+        colors = Image.open(self.image_path).convert('HSV').getcolors()
+        c = [x[1] for x in colors]
+        replacing_dict = mixPly.one_color_at_atime(c, self.mixply_colors)
+        mix_ply_img = mixPly.create_mixply_image(self.image_path, replacing_dict, self.color_selection_space)
+        print(replacing_dict)
         img_list.append(mix_ply_img)
         self.mixply_thread_signal.emit(img_list)
 

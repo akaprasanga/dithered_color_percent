@@ -947,3 +947,45 @@ AscenureIndex was outside the bounds of the array.
     saved_path = obj.ReplacewithMean(saving_path, original_filename, index_filename)
 System.IndexOutOfRangeException: Index was outside the bounds of the array.
    at Utilities.ImageProcessing.ReplacewithMean(String savePath, String original_filename, String temporary_filename)
+mario'numpy.ndarray' object has no attribute 'astypr'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 805, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 202, in main
+    segmented_r, segmented_img_path = seg.slic_superpixel(filename, np.asarray(ready_for_segment_img), segment_number,connectivity,sigma,compactness, color_pockets, resize_flag, resize_factor,dim_change_flag,dim, grayscale_flag)
+  File "E:\Work\dithered_color_percent\segmentation.py", line 26, in slic_superpixel
+    boundary = Image.fromarray(boundary.astypr('uint8'))
+AttributeError: 'numpy.ndarray' object has no attribute 'astypr'
+mario'numpy.ndarray' object has no attribute 'save'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 818, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 224, in main
+    mapped_nearest_colors.save(reduced_color_path)
+AttributeError: 'numpy.ndarray' object has no attribute 'save'
+examplea bytes-like object is required, not 'Image'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 818, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 240, in main
+    mapped_nearest_colors = Image.fromarray(mapped_nearest_colors)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2538, in fromarray
+    return frombuffer(mode, size, obj, "raw", rawmode, 0, 1)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2481, in frombuffer
+    return frombytes(mode, size, data, decoder_name, args)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2414, in frombytes
+    im.frombytes(data, decoder_name, args)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 812, in frombytes
+    s = d.decode(data)
+TypeError: a bytes-like object is required, not 'Image'
+marioa bytes-like object is required, not 'Image'Traceback (most recent call last):
+  File "E:/Work/dithered_color_percent/Dither.py", line 818, in run
+    self.resize_flag, self.resize_factor, self.reduce_color_number,self.change_dim_flag, self.dim, self.grayscale_flag)
+  File "E:\Work\dithered_color_percent\dither_algorithm.py", line 240, in main
+    mapped_nearest_colors = Image.fromarray(mapped_nearest_colors)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2538, in fromarray
+    return frombuffer(mode, size, obj, "raw", rawmode, 0, 1)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2481, in frombuffer
+    return frombytes(mode, size, data, decoder_name, args)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 2414, in frombytes
+    im.frombytes(data, decoder_name, args)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python36\lib\site-packages\PIL\Image.py", line 812, in frombytes
+    s = d.decode(data)
+TypeError: a bytes-like object is required, not 'Image'
