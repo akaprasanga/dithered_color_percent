@@ -23,9 +23,9 @@ class Segment:
         segments_slic_r = slic(image_r, n_segments=segment_number, enforce_connectivity=connectivity, convert2lab=True,
                              multichannel=True, sigma=s, compactness=k)
 
-        boundary = mark_boundaries(image_r, segments_slic_r)
-        boundary = Image.fromarray(boundary.astype('uint8'))
-        boundary.save('boundary.png')
+        # boundary = mark_boundaries(image_r, segments_slic_r)
+        # boundary = Image.fromarray(boundary.astype('uint8'))
+        # boundary.save('boundary.png')
         channel_one = np.zeros(segments_slic_r.shape, segments_slic_r.dtype)
         channel_two = segments_slic_r // 256
         channel_three = segments_slic_r % 256

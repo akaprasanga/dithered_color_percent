@@ -339,12 +339,12 @@ class MixPLy:
 
         print('Time =:', time.time()-start)
         picture = picture.convert('RGB')
-        picture.save('trail_mix.png')
+        # picture.save('trail_mix.png')
         return np.asarray(picture)
 
     def color_replacing_function(self, image, replacing_dict):
         img = Image.fromarray(image.astype('uint8'))
-        print(replacing_dict)
+        # print(replacing_dict)
         # logical refined dictionary
         refined = {}
         for k, v in replacing_dict.items():
@@ -353,7 +353,7 @@ class MixPLy:
             else:
                 refined[k] = v
 
-        print(refined)
+        # print(refined)
         replacing_dict = refined
         img_pixmap = img.load()
         w, h =img.size
@@ -363,7 +363,7 @@ class MixPLy:
                 if current_pixel in replacing_dict:
                     img_pixmap[x, y] = replacing_dict[current_pixel]
 
-        img.save('reduced_near_colors.png')
+        # img.save('reduced_near_colors.png')
         return np.asarray(img)
 
     def create_combination_and_distance_table(self, main_colors, remaining_colors):
@@ -407,6 +407,7 @@ class MixPLy:
     def one_color_at_atime(self, color_list, number_of_colors):
         replacing_list = []
         colors_to_be_replaced = []
+        colors_that_can_be_reused = []
         for i in range(0, number_of_colors):
             color_list = self.difference_of_list(color_list, colors_to_be_replaced)
 
@@ -415,11 +416,15 @@ class MixPLy:
                 l = []
                 l.append(color_list[i])
                 main_colors = color_list[:i]+color_list[i+1:]
-                probable_list = self.create_combination_and_distance_table(np.array(main_colors), np.array(l))
+                probable_list = self.create_combination_and_distance_table(np.array(main_colors+colors_that_can_be_reused), np.array(l))
                 if probable_list[0][1] < selected_one_color[0][1]:
                     selected_one_color = probable_list
             replacing_list.append(selected_one_color)
             colors_to_be_replaced.append(tuple(selected_one_color[0][0]))
+            colors_to_be_replaced.append(tuple(selected_one_color[0][2]))
+            colors_to_be_replaced.append(tuple(selected_one_color[0][4]))
+            colors_that_can_be_reused.append(tuple(selected_one_color[0][2]))
+            colors_that_can_be_reused.append(tuple(selected_one_color[0][4]))
 
 
         replacing_dict = {}
